@@ -1,2 +1,2 @@
 # H_eval
-human evaluation
+human evaluation project
