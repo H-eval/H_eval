@@ -1,0 +1,64 @@
+﻿<?xml version = "1.0" encoding = "utf-8"?>
+<EILMT-Consortia>
+<document>Tr_0009_hi.txt</document>
+<author lastname='' firstname=''></author>
+<availability format = 'Electronic'></availability>
+<bibl/>
+<bytecount>1KB</bytecount>
+<domain>Tourism</domain>
+<creation date='' institutename = 'Bansthali Vidyapeeth' creatorname_lastname = 'yogi' firstname = 'kuldeep'> </creation>
+<distributor>'Bansthali Vidyapeeth'</distributor>
+<edition>1.0</edition>
+<encodingdesc originalencoding = 'Unicode' newencoding ='Unicode'></encodingdesc> 
+<sentencemarker/>
+<language Name = 'En' writingsystem='LTR' script = 'ROMAN'/> 
+<normalization normalized = 'NO' utilityname=''/> 
+<projectdesc> E_ILMT Consortia </projectdesc>
+<pubaddress></pubaddress> 
+<pubdate></pubdate>
+<publicationstmt> non copyrighted</publicationstmt>
+<publisher>www.</publisher>
+<pubplace> web </pubplace> 
+<translation availability="Yes" translations='' fname="" lname = "null" institute = "null" language = 'Hin' writing_system= 'LTR' script = 'Devnagari'>
+</translation> 
+<wordcount>2341</wordcount>
+<body>
+<p Paranumber = '1'>
+<segment segmentno="1">
+ 
+<sentence sentencenumber='1' subdomain ='TL' >
+मारवाड़ी के पास एक सुन्दर सुशोभित सिर है जो शिखर पर प्रसन्नचित लुभाने वाले आकार के कानों पर मिलता है ।
+</sentence>
+<sentence sentencenumber='2' subdomain ='TG' >
+नैनीताल कुआऊँ पहाड़ियों में स्थित है जहाँ दूर घने जंगलों वाली पहाड़ियां, बर्फीली टोपी वाले पर्वत एवं स्पष्ट चीड़ की सुगन्धित हवा आई, पठारों से दूर विश्राम स्थल है ।
+</sentence>
+<sentence sentencenumber='3' subdomain ='TH' >
+यह नैनीताल था जहाँ कॉल जेम्स एडवर्ड कोरवेट का जन्म हुआ था ।
+</sentence>
+<sentence sentencenumber='4' subdomain ='TH' >
+कॉल जेम्स एडवर्ड कोरवेट का उस क्षेत्र की बहुतायतता के लिए प्रेम एवं सामान्य पहाड़ी जनसाधारण की दरिद्रताओं के लिए संवेदनशीलता ने उनके जीवन को आदमखोर बच्चों एवं चीतों, जिन्होंने ग्रामीणों में महामारी फैला रखी थी को एक साहसी शिकारी के रुप में गठित किया था ।
+</sentence>
+<sentence sentencenumber='5' subdomain ='TH' >
+बाद में कॉल जेम्स एडवर्ड कोरवेट एक दृष्टिगोचर वाचाल एवं लेखक बने ।
+</sentence>
+<sentence sentencenumber='6' subdomain ='TH' >
+कोरबेट राष्ट्रीय उद्यान सही उत्तराधिकारी से उस आदमी के नाम पर पड़ा है जो इसकी रचना में सक्रीय था ।
+</sentence>
+<sentence sentencenumber='7' subdomain ='TT' >
+यातायात के साधनों के रुप में जीपों एवं हाथियों के साथ उद्यान की विविध वनस्पति एवं पशु पक्षियों का निरीक्षण, जाँच एवं आनंद लेने का एक सर्वोत्तम अवसर प्राप्त होता है ।
+</sentence>
+<sentence sentencenumber='8' subdomain ='TT' >
+FL एक TC विलासमय भोजन, बिस्तर और स्नान एवं निर्जन प्रदेश से मेल खाता हुआ एक वातावरण प्रदान करता है । 
+</sentence>
+<sentence sentencenumber='9' subdomain ='TT' >
+साल के घने परिधीय संरक्षित जंगलों से गुजरती हुई सवारी का पहला चरण सरल है ।
+</sentence>
+<sentence sentencenumber='10' subdomain ='TT' >
+रास्तों पर मंदिम चाल या सरपट दौड़ एवं जो भी तुम्हारी कल्पना को जकड़े उसे रुककर निरीक्षण करने का अवसर सदैव ही साल के जंगल में मिलता है ।
+</sentence>
+
+
+</segment>
+</p>
+</body>
+</EILMT-Consortia>

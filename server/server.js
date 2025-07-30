@@ -4,7 +4,8 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
-const fileRoutes = require('./routes/fileRoutes');
+// ✅ Updated route import
+const uploadRoutes = require('./routes/uploadRoutes');
 
 const app = express();
 
@@ -14,7 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use('/api', fileRoutes);
+app.use('/api', uploadRoutes);
 
 // Health check route
 app.get('/', (req, res) => {
@@ -36,7 +37,7 @@ const startServer = async () => {
     });
   } catch (error) {
     console.error('❌ MongoDB connection error:', error.message);
-    process.exit(1); // Exit if DB fails to connect
+    process.exit(1);
   }
 };
 
