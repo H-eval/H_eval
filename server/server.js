@@ -1,43 +1,21 @@
+// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path');
-require('dotenv').config();
+const dotenv = require('dotenv');
+const authRoutes = require('./routes/authRoutes');
 
-const fileRoutes = require('./routes/fileRoutes');
+dotenv.config();
 
 const app = express();
-
-// Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use('/api', fileRoutes);
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB Connected'))
+  .catch((err) => console.log('DB Error:', err.message));
 
-// Health check route
-app.get('/', (req, res) => {
-  res.send('🚀 Backend API is running');
-});
+app.use('/api/auth', authRoutes);
 
-// MongoDB connection
-const startServer = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
-    console.log('✅ MongoDB connected');
-
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
-      console.log(`✅ Server running on http://localhost:${PORT}`);
-    });
-  } catch (error) {
-    console.error('❌ MongoDB connection error:', error.message);
-    process.exit(1); // Exit if DB fails to connect
-  }
-};
-
-startServer();
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

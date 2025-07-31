@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 
-const LineSchema = new mongoose.Schema({
+const lineSchema = new mongoose.Schema({
   fileId: { type: String, required: true },
-  english: { type: String, required: true },
-  translation: { type: String, required: true }
+  sentenceNumber: { type: Number, required: true },
+  subdomain: { type: String },
+  text: { type: String, required: true },
 });
 
-module.exports = mongoose.model('Line', LineSchema);
+module.exports = mongoose.model('Line', lineSchema);
