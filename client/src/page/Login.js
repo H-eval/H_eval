@@ -1,13 +1,20 @@
+ 
+
+
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // ✅ Added
 import './Login.css';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate(); // ✅ Added
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert(`Email: ${email}, Password: ${password}`);
+    if (email && password) {
+      navigate('/home'); // ✅ Go to Home page
+    }
   };
 
   return (

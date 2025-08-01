@@ -1,13 +1,20 @@
- import Login from './components/Login'; // or './pages/Login'
+ import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Login from './page/Login';
+import Home from './page/Home';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        {/* Keep existing routes */}
+        <Route path="/" element={<Login />} />
+        <Route path="/home" element={<Home />} />
       </Routes>
     </BrowserRouter>
   );
 }
+
+export default App;
+
+
 
