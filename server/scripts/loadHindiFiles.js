@@ -1,8 +1,12 @@
+
+
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
 const xml2js = require('xml2js');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') }); // ✅ important
+
+
 
 const Line = require('../models/Line');
 

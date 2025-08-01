@@ -1,0 +1,91 @@
+/* Background + Layout */
+.login-wrapper {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #e6ffe6, #ccffcc);
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* Box Styling */
+.login-box {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 128, 0, 0.1);
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+  animation: slideUp 0.8s ease forwards;
+}
+
+/* Heading */
+.login-box h2 {
+  margin-bottom: 10px;
+  color: #2e7d32;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Description */
+.login-box p {
+  color: #666;
+  margin-bottom: 25px;
+  font-size: 14px;
+}
+
+/* Input Fields */
+.login-box input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 18px;
+  border: 1px solid #c8e6c9;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.login-box input:focus {
+  outline: none;
+  border-color: #66bb6a;
+  box-shadow: 0 0 8px rgba(102, 187, 106, 0.3);
+}
+
+/* Submit Button */
+.login-box button {
+  width: 100%;
+  padding: 12px;
+  background-color: #43a047;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.login-box button:hover {
+  background-color: #2e7d32;
+  transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
