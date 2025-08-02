@@ -1,11 +1,16 @@
+// server.js
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
+const dotenv = require('dotenv');
 
-// ✅ Updated route import
+dotenv.config();
+
+// Routes
 const uploadRoutes = require('./routes/uploadRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -14,15 +19,16 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use('/api', uploadRoutes);
-
-// Health check route
+// Health check
 app.get('/', (req, res) => {
   res.send('🚀 Backend API is running');
 });
 
-// MongoDB connection
+// Route mounting
+app.use('/api', uploadRoutes);
+app.use('/api/auth', authRoutes);
+
+// MongoDB connection and server start
 const startServer = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
