@@ -1,3 +1,4 @@
+<<<<<<< HEAD:client/src/Login.js
 // import React, { useState } from "react";
 // import "./Login.css";
 
@@ -91,6 +92,26 @@ import "./Login.css";
 
 export default function Login() {
   const [isActive, setIsActive] = useState(false);
+=======
+ 
+
+
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // ✅ Added
+import './Login.css';
+
+function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate(); // ✅ Added
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (email && password) {
+      navigate('/home'); // ✅ Go to Home page
+    }
+  };
+>>>>>>> 46405568d4136addd56a2a32c4a9beabf7ed4c66:client/src/page/Login.js
 
   return (
     <div className={`container ${isActive ? "right-panel-active" : ""}`}>
