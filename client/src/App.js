@@ -1,13 +1,25 @@
- import Login from './components/Login'; // or './pages/Login'
+// import React from "react";
+// import Login from "./components/Login";
+
+// function App() {
+//   return (
+//     <div className="App">
+//       <Login />
+//     </div>
+//   );
+// }
+
+// export default App;
+import React from "react";
+import Login from "./Login";
+import "./Login.css";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        {/* Keep existing routes */}
-      </Routes>
-    </BrowserRouter>
+    <div className="App">
+      <Login />
+    </div>
   );
 }
 
+export default App;
