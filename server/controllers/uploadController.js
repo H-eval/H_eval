@@ -1,63 +1,93 @@
-const fs = require('fs');
-const xml2js = require('xml2js');
-const Line = require('../models/Line'); // Hindi line model
-const { v4: uuidv4 } = require('uuid');
+// controllers/uploadController.js
+const fs = require("fs");
+const { v4: uuidv4 } = require("uuid"); // <-- add uuid
+const xml2js = require("xml2js");
+const Sentence = require("../models/Sentence");
+const Translation = require("../models/Translation");
+const Translator = require("../models/Translator");
 
-const uploadAndParseEnglish = async (req, res) => {
+// Parse XML → extract <sentence>
+const parseXMLFile = async (filePath) => {
+  const data = fs.readFileSync(filePath, "utf8");
+  const result = await xml2js.parseStringPromise(data);
+
+  const sentences =
+    result["EILMT-Consortia"]?.body?.[0]?.p?.[0]?.segment?.[0]?.sentence || [];
+
+  return sentences.map((s, index) => ({
+    sentenceNumber: s.$?.sentencenumber || index + 1,
+    text: s._ ? s._.trim() : "",
+  }));
+};
+
+// Upload handler
+const uploadFiles = async (req, res) => {
   try {
-    const file = req.file;
-    if (!file) {
-      return res.status(400).json({ message: 'No file uploaded' });
-    }
+    const englishFile = req.files?.english?.[0];
+    const translationFiles = req.files?.translations || [];
 
-    // Read & parse uploaded XML
-    const xmlContent = fs.readFileSync(file.path, 'utf-8');
-    const parsed = await xml2js.parseStringPromise(xmlContent);
-
-    const sentenceTags =
-      parsed['EILMT-Consortia']?.body?.[0]?.p?.[0]?.segment?.[0]?.sentence;
-
-    if (!sentenceTags || !sentenceTags.length) {
-      return res
-        .status(400)
-        .json({ message: 'No <sentence> tags found in the uploaded file' });
-    }
-
-    const fileId = uuidv4();
-
-    const results = [];
-
-    for (let i = 0; i < sentenceTags.length; i++) {
-      const sentenceNumber = parseInt(
-        sentenceTags[i]['$']?.sentencenumber || i + 1
-      );
-      const englishText = sentenceTags[i]._ || sentenceTags[i];
-
-      const hindiMatches = await Line.find({ sentenceNumber });
-
-      results.push({
-        fileId,
-        sentenceNumber,
-        english: englishText,
-        hindi: hindiMatches.map((line) => ({
-          fileId: line.fileId,
-          text: line.text,
-        })),
+    if (!englishFile || translationFiles.length !== 3) {
+      return res.status(400).json({
+        message: "Upload 1 English file and exactly 3 translation files",
       });
     }
 
-    console.log('✅ Matched Translation Lines:\n', results);
+    // 1️⃣ Generate unique fileId
+    const fileId = uuidv4();
 
-    // Send to frontend
+    // 2️⃣ Parse English and insert into Sentence collection
+    const englishSentences = await parseXMLFile(englishFile.path);
+    const sentenceIdMap = {};
+
+    for (const s of englishSentences) {
+      const savedSentence = await Sentence.create({
+        fileId, // link sentences to this upload
+        text: s.text,
+      });
+      sentenceIdMap[s.sentenceNumber] = savedSentence._id;
+    }
+
+    // 3️⃣ Ensure translators exist
+    const translators = [];
+    for (let i = 0; i < 3; i++) {
+      const code = `T0${i + 1}`;
+      let translator = await Translator.findOne({ code });
+      if (!translator) {
+        translator = await Translator.create({
+          code,
+          name: `Translator ${code}`,
+        });
+      }
+      translators.push(translator);
+    }
+
+    // 4️⃣ Parse and insert Hindi translations
+    for (let i = 0; i < translationFiles.length; i++) {
+      const translator = translators[i];
+      const hindiSentences = await parseXMLFile(translationFiles[i].path);
+
+      for (const s of hindiSentences) {
+        const sentenceObjectId = sentenceIdMap[s.sentenceNumber];
+        if (!sentenceObjectId) continue;
+
+        await Translation.create({
+          fileId, // link translations to this upload
+          SID: sentenceObjectId,
+          TID: translator._id,
+          translatedText: s.text,
+        });
+      }
+    }
+
+    // ✅ Send fileId back to frontend
     res.json({
-      message: '✅ Matched Hindi lines fetched successfully',
+      message: "✅ Files uploaded and saved successfully",
       fileId,
-      data: results,
     });
   } catch (error) {
-    console.error('❌ Parsing error:', error.message);
-    res.status(500).json({ message: 'Server error during file parsing' });
+    console.error("❌ Upload error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
-module.exports = { uploadAndParseEnglish };
+module.exports = { uploadFiles };
