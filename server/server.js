@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
-
+const bodyParser = require("body-parser");
 dotenv.config();
 
 const app = express();
@@ -18,6 +18,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ===== Routes =====
+
+const nlpRoutes = require("./routes/nlproutes");
 const uploadRoutes = require('./routes/uploadRoutes');
 const authRoutes = require('./routes/authRoutes');
 const translationRoutes = require('./routes/translationRoutes');
@@ -30,6 +32,8 @@ app.get('/', (req, res) => {
 app.use('/api', uploadRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', translationRoutes);
+app.use(bodyParser.json());
+app.use("/api/nlp", nlpRoutes);
 // ===== MongoDB Connection & Server Start =====
 const startServer = async () => {
   try {

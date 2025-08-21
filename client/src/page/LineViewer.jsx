@@ -1,4 +1,4 @@
-// src/page/LineViewer.jsx
+// src/pages/LineViewer.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -8,12 +8,34 @@ const LineViewer = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [posTags, setPosTags] = useState([]);
 
+  // Call Python NLP service for POS tags
+  const getPOSTags = async (sentence) => {
+    try {
+      const res = await fetch("http://127.0.0.1:5001/process", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: sentence }),
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch POS tags");
+
+      const data = await res.json();
+      return data.tokens || []; // array of { text, lemma, upos, ner }
+    } catch (err) {
+      console.error("NLP service error:", err);
+      return [];
+    }
+  };
+
+  // Fetch translations from Node backend
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // backend ignores fileId for now; keep it for future filtering
-        const url = `http://localhost:5000/api/translations/sequences${fileId ? `?fileId=${fileId}` : ""}`;
+        const url = `http://localhost:5000/api/translations/sequences${
+          fileId ? `?fileId=${fileId}` : ""
+        }`;
         const res = await fetch(url);
         if (!res.ok) throw new Error("Failed to fetch translations");
         const data = await res.json();
@@ -28,6 +50,16 @@ const LineViewer = () => {
 
     fetchData();
   }, [fileId]);
+
+  // Fetch POS tags whenever the current English line changes
+  useEffect(() => {
+    if (lines.length > 0 && lines[currentIndex]) {
+      const sentence = lines[currentIndex].text;
+      getPOSTags(sentence).then((tags) => setPosTags(tags));
+    } else {
+      setPosTags([]);
+    }
+  }, [currentIndex, lines]);
 
   if (loading) return <p>Loading translations...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
@@ -57,6 +89,23 @@ const LineViewer = () => {
         <p style={{ color: "#999" }}>No translations available</p>
       )}
 
+      {/* POS Tags */}
+      <div style={{ marginTop: "20px" }}>
+        <h3>POS Tags</h3>
+        {posTags.length > 0 ? (
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {posTags.map((token, idx) => (
+              <li key={idx} style={{ marginBottom: "5px" }}>
+                <strong>{token.text}</strong> — {token.upos}{" "}
+                <em>({token.lemma})</em> {token.ner && `[NER: ${token.ner}]`}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p style={{ color: "#999" }}>No POS tags available</p>
+        )}
+      </div>
+
       {/* Navigation */}
       <div style={{ marginTop: "20px" }}>
         <button
@@ -67,7 +116,9 @@ const LineViewer = () => {
           Previous
         </button>
         <button
-          onClick={() => setCurrentIndex((i) => Math.min(i + 1, lines.length - 1))}
+          onClick={() =>
+            setCurrentIndex((i) => Math.min(i + 1, lines.length - 1))
+          }
           disabled={currentIndex === lines.length - 1}
           style={{ padding: "5px 10px" }}
         >
