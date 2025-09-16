@@ -410,3 +410,40 @@ input {
 .container.right-panel-active .overlay-right {
   transform: translateX(20%);
 }
+.background-word {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.15);
+  pointer-events: none;
+  white-space: nowrap;
+  filter: blur(2px);
+  animation: float 6s infinite ease-in-out alternate;
+  z-index: 0;
+}
+
+@keyframes float {
+  0% { transform: translate(0px, 0px) rotate(0deg); }
+  50% { transform: translate(15px, -15px) rotate(3deg); }
+  100% { transform: translate(-10px, 10px) rotate(-3deg); }
+}
+.login-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: black; /* fallback if background not load */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ✅ Fix container so background is visible behind it */
+.container {
+  background: rgba(255, 255, 255, 0.05); /* light transparent */
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 2rem;
+  position: relative;
+  z-index: 10; /* ✅ make sure container is above background */
+}
+/* Make sure your login container stays on top */
+

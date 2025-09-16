@@ -1,0 +1,47 @@
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: black;   /* ✅ full-page black background */
+  overflow: hidden;
+}
+
+.background-words {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  background: transparent; /* keep it transparent so black shows */
+  z-index: 0;
+}
+
+.word {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 15px;
+  opacity: 0.08;
+  color: white;
+  animation: float 5s ease-in-out infinite;
+}
+
+.login-container {
+  position: relative;
+  z-index: 1; /* keeps form above background */
+  display: flex;
+  background: white; /* left side white */
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Right side of the card */
+.login-container .right {
+  background: #4A6CF7; /* your blue */
+  color: white;
+}
