@@ -1,249 +1,18 @@
-/* /* @import url('https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
-}
-
-body {
-  background: linear-gradient(-45deg, #6dd5fa, #4a90e2, #c9d6ff, #e2e2e2);
-  background-size: 400% 400%;
-  animation: gradientBG 12s ease infinite;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-@keyframes gradientBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.container {
-  background: #fff;
-  border-radius: 30px;
-  box-shadow: 0 0 30px rgba(0,0,0,0.2);
-  position: relative;
-  overflow: hidden;
-  width: 850px;
-  max-width: 100%;
-  min-height: 550px;
-  transition: all 0.6s ease-in-out;
-}
-
-.animate {
-  animation: fadeIn 1.2s ease forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.form-container {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  transition: all 0.6s ease-in-out;
-}
-
-.sign-in-container {
-  left: 0;
-  width: 50%;
-  z-index: 2;
-}
-
-.sign-up-container {
-  left: 0;
-  width: 50%;
-  opacity: 0;
-  z-index: 1;
-}
-
-.container.right-panel-active .sign-in-container {
-  transform: translateX(100%);
-}
-
-.container.right-panel-active .sign-up-container {
-  transform: translateX(100%);
-  opacity: 1;
-  z-index: 5;
-}
-
-form {
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  padding: 50px;
-  height: 100%;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  animation: slideIn 0.8s ease;
-}
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.input-box {
-  position: relative;
-  width: 100%;
-}
-
-.input-box input {
-  background: #f0f0f0;
-  border: none;
-  padding: 12px 15px 12px 40px;
-  margin: 8px 0;
-  width: 100%;
-  border-radius: 8px;
-  transition: background 0.3s ease;
-}
-
-.input-box input:focus {
-  background: #e3f2fd;
-  outline: none;
-}
-
-.input-box i {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #4a90e2;
-}
-
-button {
-  border-radius: 20px;
-  border: 1px solid #4a90e2;
-  background: #4a90e2;
-  color: #fff;
-  font-size: 14px;
-  padding: 12px 45px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  transition: transform 0.2s ease, background 0.3s ease;
-  cursor: pointer;
-}
-
-button:hover {
-  transform: scale(1.05);
-  background: #357ab7;
-}
-
-button.ghost {
-  background: transparent;
-  border-color: #fff;
-}
-
-.overlay-container {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 50%;
-  height: 100%;
-  overflow: hidden;
-  transition: transform 0.6s ease-in-out;
-  z-index: 100;
-}
-
-.overlay {
-  background: linear-gradient(90deg, #4a90e2, #6dd5fa);
-  background-size: 200% 200%;
-  animation: overlayGradient 8s ease infinite;
-  color: #fff;
-  position: relative;
-  left: -100%;
-  height: 100%;
-  width: 200%;
-  transform: translateX(0);
-  transition: transform 0.6s ease-in-out;
-}
-
-@keyframes overlayGradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.container.right-panel-active .overlay {
-  transform: translateX(50%);
-}
-
-.overlay-panel {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0 40px;
-  text-align: center;
-  top: 0;
-  height: 100%;
-  width: 50%;
-  transform: translateX(0);
-  transition: transform 0.6s ease-in-out;
-}
-
-.overlay-left {
-  transform: translateX(-20%);
-}
-
-.container.right-panel-active .overlay-left {
-  transform: translateX(0);
-}
-
-.overlay-right {
-  right: 0;
-  transform: translateX(0);
-}
-
-.container.right-panel-active .overlay-right {
-  transform: translateX(20%);
-}
-
-.social-icons {
-  margin: 20px 0;
-}
-
-.social-icons a {
-  border: 1px solid #ccc;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 5px;
-  height: 40px;
-  width: 40px;
-  transition: background 0.3s ease, transform 0.3s ease;
-}
-
-.social-icons a:hover {
-  background: #4a90e2;
-  color: #fff;
-  transform: scale(1.1);
-} */
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
 
- {
+* {
   box-sizing: border-box;
 }
 
 body {
-  background: #f6f5f7;
-  font-family: 'Montserrat', sans-serif;
+  background: url("https://images.unsplash.com/photo-1517694712202-14dd9538aa97")
+    no-repeat center center/cover;
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 100vh;
+  justify-content: center;
   margin: 0;
+  font-family: 'Montserrat', sans-serif;
 }
 
 h1 {
@@ -259,35 +28,29 @@ p {
   margin: 20px 0 30px;
 }
 
+/* ✅ Button Styling */
 button {
   border-radius: 20px;
-  border: 1px solid rgb(112, 146, 234);
-  background-color: rgb(112, 146, 234);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background-color: rgba(112, 146, 234, 0.8);
   color: #fff;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
   padding: 12px 45px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  transition: transform 80ms ease-in;
+  transition: transform 0.2s ease, background 0.3s ease;
+  cursor: pointer;
 }
 
-button:active {
-  transform: scale(0.95);
+button:hover {
+  transform: scale(1.05);
+  background-color: rgba(112, 146, 234, 1);
 }
 
-button:focus {
-  outline: none;
-}
-
-button.ghost {
-  background-color: transparent;
-  border-color: #fff;
-}
-
+/* ✅ Form */
 form {
-  background: transparent; /* ✅ fully transparent */
-  backdrop-filter: none; /* remove extra blur from form */
+  background: transparent;
   border: none;
   display: flex;
   align-items: center;
@@ -296,19 +59,27 @@ form {
   padding: 0 50px;
   height: 100%;
   text-align: center;
-    gap: 12px;
+  color: white;
+  gap: 12px;
 }
 
+/* ✅ Input Styling */
 input {
-  background-color: #eee;
-  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
   padding: 12px 15px;
   margin: 8px 0;
   width: 100%;
+  border-radius: 8px;
+  outline: none;
 }
 
+input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
 
-
+/* ✅ Form Container */
 .form-container {
   position: absolute;
   top: 0;
@@ -316,28 +87,26 @@ input {
   transition: all 0.6s ease-in-out;
 }
 
-.sign-in-container,
+/* ✅ Sign-in & Sign-up Containers */
+.sign-in-container {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .sign-up-container {
   position: absolute;
   top: 0;
   height: 100%;
-  transition: all 0.6s ease-in-out;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 50%;
   opacity: 0;
-  pointer-events: none; /* Prevent clicks on hidden form */
+  pointer-events: none;
+  transition: all 0.6s ease-in-out;
 }
 
-/* ✅ Show sign-in by default */
-.sign-in-container {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* ✅ When switching, hide/show properly */
 .container.right-panel-active .sign-in-container {
   transform: translateX(100%);
   opacity: 0;
@@ -350,6 +119,7 @@ input {
   pointer-events: auto;
 }
 
+/* ✅ Overlay */
 .overlay-container {
   position: absolute;
   top: 0;
@@ -366,11 +136,10 @@ input {
 }
 
 .overlay {
-  background: linear-gradient(to right, rgb(112, 146, 234), rgb(92, 126, 210));
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: 0 0;
-  color: #ffffff;
+  background: rgba(0, 0, 0, 0.4); /* Dark glass look */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: white;
   position: relative;
   left: -100%;
   height: 100%;
@@ -386,9 +155,9 @@ input {
 .overlay-panel {
   position: absolute;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
   padding: 0 40px;
   text-align: center;
   top: 0;
@@ -414,6 +183,8 @@ input {
 .container.right-panel-active .overlay-right {
   transform: translateX(20%);
 }
+
+/* ✅ Background Floating Words */
 .background-word {
   position: absolute;
   color: rgba(255, 255, 255, 0.15);
@@ -425,143 +196,34 @@ input {
 }
 
 @keyframes float {
-  0% { transform: translate(0px, 0px) rotate(0deg); }
+  0% { transform: translate(0, 0) rotate(0deg); }
   50% { transform: translate(15px, -15px) rotate(3deg); }
   100% { transform: translate(-10px, 10px) rotate(-3deg); }
 }
+
+/* ✅ Login Page Wrapper */
 .login-page {
   position: relative;
   width: 100vw;
   height: 100vh;
-  background: rgb(192, 192, 192); /* fallback if background not load */
+  background: rgb(192, 192, 192);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
 }
 
-/* ✅ Fix container so background is visible behind it */
+/* ✅ Main Container Glassmorphism */
 .container {
-  background: rgba(255, 255, 255, 0.08); /* ✅ Transparent white */
-  backdrop-filter: blur(12px); /* ✅ Glass effect */
-  -webkit-backdrop-filter: blur(12px); /* ✅ Safari support */
-  border-radius: 15px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); /* subtle shadow */
-  position: relative;
-  overflow: hidden;
-  width: 850px;
-  max-width: 100%;
-  min-height: 520px;
-  border: 1px solid rgba(255, 255, 255, 0.2); /* thin glass border */
-}
-/* Make sure your login container stays on top */
-
-body {
-  background: url("https://images.unsplash.com/photo-1517694712202-14dd9538aa97")
-    no-repeat center center/cover;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}  
-/* ✅ Glassmorphism Login / Register UI */
-
-/* Import Fonts */
-@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  background: url("https://images.unsplash.com/photo-1517694712202-14dd9538aa97")
-    no-repeat center center/cover;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  font-family: 'Montserrat', sans-serif;
-}
-
-/* ✅ Container - Glass Effect */
-.container {
-  background: rgba(255, 255, 255, 0.08); /* Transparent white */
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: 15px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   position: relative;
   overflow: hidden;
   width: 850px;
-  max-width: 95%;
+  max-width: 100%;
   min-height: 520px;
   border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* ✅ Form - Transparent */
-form {
-  background: transparent;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  padding: 0 50px;
-  height: 100%;
-  text-align: center;
-  color: white;
-}
-
-/* ✅ Input Styling */
-input {
-  background: rgba(255, 255, 255, 0.15); /* Slightly transparent */
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 12px 15px;
-  margin: 8px 0;
-  width: 100%;
-  border-radius: 8px;
-  outline: none;
-}
-
-input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-/* ✅ Button Styling */
-button {
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  background-color: rgba(112, 146, 234, 0.8); /* Semi-transparent button */
-  color: #fff;
-  font-size: 14px;
-  font-weight: bold;
-  padding: 12px 45px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  transition: transform 0.2s ease, background 0.3s ease;
-  cursor: pointer;
-}
-
-button:hover {
-  transform: scale(1.05);
-  background-color: rgba(112, 146, 234, 1);
-}
-
-/* ✅ Overlay Section */
-.overlay {
-  background: rgba(0, 0, 0, 0.4); /* Transparent dark layer */
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  color: white;
-}
-
-.overlay-panel h1, .overlay-panel p {
-  color: white;
-}
-
-/* ✅ Optional: Add smooth animations */
-.form-container {
-  transition: all 0.6s ease-in-out;
 }

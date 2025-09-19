@@ -1,11 +1,14 @@
 html, body {
-  height: 100%;
+  min-height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
-  background: black;   /* ✅ full-page black background */
-  overflow: hidden;
+  background: black;
+  overflow-x: hidden;  /* ✅ block horizontal scroll */
+  overflow-y: auto;    /* ✅ allow vertical scroll */
+  scroll-behavior: smooth; /* ✅ smooth scrolling when clicking navbar links */
 }
+
 
 .background-words {
   position: fixed;
