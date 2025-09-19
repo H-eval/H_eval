@@ -1,4 +1,4 @@
-/* @import url('https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css');
+/* /* @import url('https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
 * {
@@ -232,7 +232,7 @@ button.ghost {
 } */
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
 
-* {
+ {
   box-sizing: border-box;
 }
 
@@ -286,7 +286,9 @@ button.ghost {
 }
 
 form {
-  background-color: #ffffff;
+  background: transparent; /* ✅ fully transparent */
+  backdrop-filter: none; /* remove extra blur from form */
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -294,6 +296,7 @@ form {
   padding: 0 50px;
   height: 100%;
   text-align: center;
+    gap: 12px;
 }
 
 input {
@@ -304,17 +307,7 @@ input {
   width: 100%;
 }
 
-.container {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 14px 28px rgba(0,0,0,0.25), 
-              0 10px 10px rgba(0,0,0,0.22);
-  position: relative;
-  overflow: hidden;
-  width: 850px; /* increased size */
-  max-width: 100%;
-  min-height: 520px; /* slightly taller */
-}
+
 
 .form-container {
   position: absolute;
@@ -323,27 +316,38 @@ input {
   transition: all 0.6s ease-in-out;
 }
 
-.sign-in-container {
-  left: 0;
-  width: 50%;
-  z-index: 2;
-}
-
+.sign-in-container,
 .sign-up-container {
-  left: 0;
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transition: all 0.6s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   width: 50%;
   opacity: 0;
-  z-index: 1;
+  pointer-events: none; /* Prevent clicks on hidden form */
 }
 
+/* ✅ Show sign-in by default */
+.sign-in-container {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ✅ When switching, hide/show properly */
 .container.right-panel-active .sign-in-container {
   transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .container.right-panel-active .sign-up-container {
   transform: translateX(100%);
   opacity: 1;
-  z-index: 5;
+  pointer-events: auto;
 }
 
 .overlay-container {
@@ -429,7 +433,7 @@ input {
   position: relative;
   width: 100vw;
   height: 100vh;
-  background: black; /* fallback if background not load */
+  background: rgb(192, 192, 192); /* fallback if background not load */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -438,12 +442,126 @@ input {
 
 /* ✅ Fix container so background is visible behind it */
 .container {
-  background: rgba(255, 255, 255, 0.05); /* light transparent */
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.08); /* ✅ Transparent white */
+  backdrop-filter: blur(12px); /* ✅ Glass effect */
+  -webkit-backdrop-filter: blur(12px); /* ✅ Safari support */
   border-radius: 15px;
-  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); /* subtle shadow */
   position: relative;
-  z-index: 10; /* ✅ make sure container is above background */
+  overflow: hidden;
+  width: 850px;
+  max-width: 100%;
+  min-height: 520px;
+  border: 1px solid rgba(255, 255, 255, 0.2); /* thin glass border */
 }
 /* Make sure your login container stays on top */
 
+body {
+  background: url("https://images.unsplash.com/photo-1517694712202-14dd9538aa97")
+    no-repeat center center/cover;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}  
+/* ✅ Glassmorphism Login / Register UI */
+
+/* Import Fonts */
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: url("https://images.unsplash.com/photo-1517694712202-14dd9538aa97")
+    no-repeat center center/cover;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* ✅ Container - Glass Effect */
+.container {
+  background: rgba(255, 255, 255, 0.08); /* Transparent white */
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  width: 850px;
+  max-width: 95%;
+  min-height: 520px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ✅ Form - Transparent */
+form {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 50px;
+  height: 100%;
+  text-align: center;
+  color: white;
+}
+
+/* ✅ Input Styling */
+input {
+  background: rgba(255, 255, 255, 0.15); /* Slightly transparent */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 12px 15px;
+  margin: 8px 0;
+  width: 100%;
+  border-radius: 8px;
+  outline: none;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ✅ Button Styling */
+button {
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background-color: rgba(112, 146, 234, 0.8); /* Semi-transparent button */
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 12px 45px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: transform 0.2s ease, background 0.3s ease;
+  cursor: pointer;
+}
+
+button:hover {
+  transform: scale(1.05);
+  background-color: rgba(112, 146, 234, 1);
+}
+
+/* ✅ Overlay Section */
+.overlay {
+  background: rgba(0, 0, 0, 0.4); /* Transparent dark layer */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: white;
+}
+
+.overlay-panel h1, .overlay-panel p {
+  color: white;
+}
+
+/* ✅ Optional: Add smooth animations */
+.form-container {
+  transition: all 0.6s ease-in-out;
+}
