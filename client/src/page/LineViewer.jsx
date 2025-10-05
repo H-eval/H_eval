@@ -1,6 +1,11 @@
 // src/pages/LineViewer.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+//import Aurora from "../components/Aurora";
+//import WebName from "../components/WebName";
+ import Stepper, { Step } from '../components/Stepper';
+ import BackgroundWords from "../components/BackgroundWords";
+  
 
 const LineViewer = () => {
   const { fileId } = useParams(); // may be undefined
@@ -28,6 +33,23 @@ const LineViewer = () => {
       return [];
     }
   };
+
+  const posColorMap = {
+     NOUN: "bg-blue-600",
+    VERB: "bg-red-600",
+    ADJ: "bg-purple-600",
+    ADV: "bg-pink-600",
+    PRON: "bg-green-600",
+    DET: "bg-yellow-600",
+    ADP: "bg-indigo-600",
+    CCONJ: "bg-teal-600",
+    PROPN: "bg-orange-600",
+    PUNCT: "bg-gray-600",
+  };
+
+  // const getRandomColor = () => {
+  //   return posColors[Math.floor(Math.random() * posColors.length)];
+  // };
 
   // Fetch translations from Node backend
   useEffect(() => {
@@ -61,77 +83,154 @@ const LineViewer = () => {
     }
   }, [currentIndex, lines]);
 
-  if (loading) return <p>Loading translations...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
-  if (!lines.length) return <p>No lines found.</p>;
+   if (loading)
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-900 text-white">
+        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
 
+  if (error)
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-900">
+        <p className="text-red-400 font-semibold">{error}</p>
+      </div>
+    );
+
+  if (!lines.length)
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-900">
+        <p className="text-gray-400">No lines found.</p>
+      </div>
+    );
   const currentLine = lines[currentIndex] || { text: "", translations: [] };
-
+ 
+  const handleAnimationComplete = () => {
+    console.log('All letters have animated!');
+  }; 
+   
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h2 style={{ color: "#333" }}>Line-by-Line Viewer</h2>
+  <div className="relative min-h-screen bg-gray-900 text-white flex justify-center items-center p-6 overflow-hidden">
+    {/* Aurora Background
+    <Aurora
+      className="absolute inset-0"
+      colorStops={["#1C1C1C", "#555555", "#888888"]}
+      blend={0.5}
+      amplitude={1.0}
+      speed={0.5}
+    /> */}
 
-      {/* English Line */}
-      <p style={{ fontSize: "18px", fontWeight: "bold" }}>
-        English: {currentLine.text}
-      </p>
+    {/* Animated Words Background */}
+    <BackgroundWords />
 
-      {/* Hindi Translations */}
-      {currentLine.translations && currentLine.translations.length > 0 ? (
-        <div>
-          {currentLine.translations.map((t, idx) => (
-            <p key={idx} style={{ fontSize: "16px", color: "#555" }}>
-              {t?.translator?.code || `T0${idx + 1}`}: {t?.translatedText}
-            </p>
-          ))}
-        </div>
-      ) : (
-        <p style={{ color: "#999" }}>No translations available</p>
-      )}
+    {/* Website Name in Top Left */}
+     {/* <div className="absolute top-4 left-4 z-20">
+      <WebName
+        text="TATVA"
+        className="text-3xl font-bold text-blue-400"
+        delay={100}
+        duration={0.6}
+        ease="power3.out"
+        splitType="chars"
+        from={{ opacity: 0, y: 40 }}
+        to={{ opacity: 1, y: 0 }}
+        threshold={0.1}
+        rootMargin="-100px"
+        textAlign="left"
+        onLetterAnimationComplete={handleAnimationComplete}
+      />
+    </div>  */}
+    <div className=" 
+                    w-full max-w-11xl 
+                    min-h-[75vh] max-h-[85vh] 
+                    flex flex-col justify-between">  
+    <Stepper
+      initialStep={1}
+      onStepChange={(step) => {
+        console.log(step);
+      }}
+      onFinalStepCompleted={() => console.log("All steps completed!")}
+      backButtonText="Previous"
+      nextButtonText="Next"
+    >
+      {lines.map((line, idx) => (
+        <Step key={idx} className="bg-transparent">
+          <div className="h-auto pr-2">
+            {/* English Line with colored POS words */}
+            <div className="mb-4">
+              <p className="text-lg font-semibold text-white flex flex-wrap gap-2">
+                <span className="text-gray-400">English:</span>
+                {posTags.length > 0 ? (
+                  posTags.map((token, idx) => {
+                    const color = posColorMap[token.upos] || "bg-gray-700";
+                    return (
+                      <span
+                        key={idx}
+                        className={`relative group px-2 py-1 rounded ${color} text-white cursor-pointer`}
+                      >
+                        {token.text}
+                        {/* Tooltip */}
+                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-black text-white text-xs px-2 py-1 rounded shadow-lg z-20 whitespace-nowrap">
+                          <div>
+                            <strong>Lemma:</strong> {token.lemma}
+                          </div>
+                          <div>
+                            <strong>POS:</strong> {token.upos}
+                          </div>
+                          {token.ner && (
+                            <div>
+                              <strong>NER:</strong> {token.ner}
+                            </div>
+                          )}
+                        </div>
+                      </span>
+                    );
+                  })
+                ) : (
+                  <span className="ml-2 text-gray-400">{line.text}</span>
+                )}
+              </p>
+            </div>
 
-      {/* POS Tags */}
-      <div style={{ marginTop: "20px" }}>
-        <h3>POS Tags</h3>
-        {posTags.length > 0 ? (
-          <ul style={{ listStyle: "none", padding: 0 }}>
-            {posTags.map((token, idx) => (
-              <li key={idx} style={{ marginBottom: "5px" }}>
-                <strong>{token.text}</strong> — {token.upos}{" "}
-                <em>({token.lemma})</em> {token.ner && `[NER: ${token.ner}]`}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p style={{ color: "#999" }}>No POS tags available</p>
-        )}
-      </div>
+            {/* Legend Block */}
+            <div className="mt-6 p-3 rounded-lg bg-gray-800 border border-gray-700">
+              <h4 className="text-gray-300 text-sm mb-2">Legend</h4>
+              <div className="flex flex-wrap gap-4 text-sm">
+                {Object.entries(posColorMap).map(([pos, color], idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <div className={`w-4 h-4 rounded ${color}`}></div>
+                    <span>{pos}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-      {/* Navigation */}
-      <div style={{ marginTop: "20px" }}>
-        <button
-          onClick={() => setCurrentIndex((i) => Math.max(i - 1, 0))}
-          disabled={currentIndex === 0}
-          style={{ marginRight: "10px", padding: "5px 10px" }}
-        >
-          Previous
-        </button>
-        <button
-          onClick={() =>
-            setCurrentIndex((i) => Math.min(i + 1, lines.length - 1))
-          }
-          disabled={currentIndex === lines.length - 1}
-          style={{ padding: "5px 10px" }}
-        >
-          Next
-        </button>
-      </div>
+            {/* Hindi Translations */}
+            {line.translations?.length > 0 ? (
+              <div className="mt-4">
+                {line.translations.map((t, tIdx) => (
+                  <p
+                    key={tIdx}
+                    className="text-gray-200 bg-gray-800 px-3 py-2 rounded-lg border border-gray-700 mb-1"
+                  >
+                    <span className="font-semibold text-blue-400">
+                      {t?.translator?.code || `T0${tIdx + 1}`}:
+                    </span>{" "}
+                    {t?.translatedText}
+                  </p>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 mt-4">No translations available</p>
+            )}
+          </div>
+        </Step>
+      ))}
+    </Stepper>
+  </div>
+  </div>
+);
 
-      {/* Progress Indicator */}
-      <p style={{ marginTop: "10px", color: "#777" }}>
-        Line {currentIndex + 1} of {lines.length}
-      </p>
-    </div>
-  );
 };
 
 export default LineViewer;
