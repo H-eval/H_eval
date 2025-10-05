@@ -1,290 +1,216 @@
-// src/pages/Home.jsx
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
-import axios from "axios";
+import { motion } from "framer-motion";
+import BackgroundWords from "../componets/BackgroundWords";
 import "./Home.css";
-import logo from "../assets/logo.jpg";
-import uploadimage from "../assets/hello.png";
 
-const features = [
-  {
-    title: "User Authentication",
-    details:
-      "Secure login and registration using JWT. Users have protected access to upload and view their translations, with sessions managed in localStorage.",
-  },
-  {
-    title: "Upload English XML File",
-    details:
-      "Upload structured English XML files through a simple interface. Files are parsed on the backend and prepared for matching with translations.",
-  },
-  {
-    title: "Smart Translation Matching",
-    details:
-      "The backend intelligently aligns uploaded English sentences with corresponding Hindi lines from preloaded datasets using structured logic.",
-  },
-  {
-    title: "Seamless User Interface",
-    details:
-      "A smooth and responsive UI guides users from file upload to translation viewing, with intuitive navigation and clean layout for easy readability.",
-  },
+const cards = [
+  { title: "Multi-Language Support", desc: "Translates text between multiple languages, including English, Hindi, and other regional languages." },
+  { title: "Line-by-Line Translation Viewer", desc: "Displays translations for each line individually, allowing users to follow along easily." },
+  { title: "XML File Upload", desc: "Users can upload XML files containing text, and the translator automatically parses and processes them." },
+  { title: "Matched Translation Comparison", desc: "Matches uploaded English lines with preloaded translations in other languages for side-by-side comparison." },
+  { title: "Progress Tracking", desc: "Shows translation progress with a visual indicator, helping users keep track of completed and pending lines." }
 ];
 
-const StyledWrapper = styled.div`
-  .card {
-    position: relative;
-    width: 220px;
-    height: 320px;
-    background: mediumturquoise;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 15px;
-    cursor: pointer;
-    text-align: center;
-    padding: 10px;
-  }
-
-  .card::before,
-  .card::after {
-    position: absolute;
-    content: "";
-    width: 20%;
-    height: 20%;
-    background-color: lightblue;
-    transition: all 0.5s;
-    z-index: -1;
-  }
-
-  .card::before {
-    top: 0;
-    right: 0;
-    border-radius: 0 15px 0 100%;
-  }
-
-  .card::after {
-    bottom: 0;
-    left: 0;
-    border-radius: 0 100% 0 15px;
-  }
-
-  .card:hover::before,
-  .card:hover::after {
-    width: 100%;
-    height: 100%;
-    border-radius: 15px;
-  }
-`;
-
 const Home = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [englishFile, setEnglishFile] = useState(null);
-  const [translationFiles, setTranslationFiles] = useState([]);
-  const [uploadMessage, setUploadMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
 
-  // Logout animation
-  const handleLogoutWithEffect = (e) => {
-    const button = e.currentTarget;
-    for (let i = 0; i < 20; i++) {
-      const sparkle = document.createElement("span");
-      sparkle.className = "sparkle";
-      sparkle.style.left = `${e.clientX - button.getBoundingClientRect().left}px`;
-      sparkle.style.top = `${e.clientY - button.getBoundingClientRect().top}px`;
-      sparkle.style.setProperty("--x", Math.random());
-      sparkle.style.setProperty("--y", Math.random());
-      button.appendChild(sparkle);
-      setTimeout(() => sparkle.remove(), 1000);
+  const sections = ["English", "Indian Language 1", "Indian Language 2", "Indian Language 3"];
+  const [selectedType, setSelectedType] = useState(0);
+  const [files, setFiles] = useState([null, null, null, null]);
+  const [progress, setProgress] = useState([0, 0, 0, 0]);
+
+  const scrollRef = useRef(null);
+  const [paused, setPaused] = useState(false);
+
+  // Handle file selection
+  const handleFileSelect = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      const newFiles = [...files];
+      newFiles[selectedType] = {
+        name: selectedFile.name,
+        size: (selectedFile.size / 1024).toFixed(2) + " KB",
+        ext: selectedFile.name.split(".").pop().toUpperCase(),
+      };
+      setFiles(newFiles);
+
+      let uploadProgress = 0;
+      const interval = setInterval(() => {
+        uploadProgress += 5;
+        if (uploadProgress >= 100) {
+          clearInterval(interval);
+          uploadProgress = 100;
+        }
+        const newProgress = [...progress];
+        newProgress[selectedType] = uploadProgress;
+        setProgress(newProgress);
+      }, 200);
     }
-    setTimeout(() => {
-      localStorage.removeItem("token");
-      navigate("/login");
-    }, 1200);
   };
 
-  const scrollToSection = (id) => {
-    const element = document.getElementById(id);
-    if (element) element.scrollIntoView({ behavior: "smooth" });
-  };
-
-  // Handle English file
-  const handleEnglishChange = (e) => {
-    const file = e.target.files[0];
-    setEnglishFile(file || null);
-    setUploadMessage("");
-  };
-
-  // Handle Hindi translations (multiple files)
-  const handleTranslationsChange = (e) => {
-    const files = Array.from(e.target.files);
-    setTranslationFiles(files);
-    setUploadMessage("");
-  };
-
-const handleSubmit = async () => {
-  if (!englishFile || translationFiles.length !== 3) {
-    setUploadMessage("⚠️ Please select 1 English file and exactly 3 translation files.");
-    return;
-  }
-
-  try {
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("english", englishFile);
-    translationFiles.forEach((file) => {
-      formData.append("translations", file);
-    });
-
-    const res = await axios.post("http://localhost:5000/api/upload", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    console.log("UPLOAD RESPONSE:", res.data);   // 👈 debug log
-    setUploadMessage(res.data.message || "✅ Upload successful");
-    setLoading(false);
-
-    if (res.data.fileId) {
-      console.log("Redirecting to:", `/lineviewer/${res.data.fileId}`);
-      navigate(`/lineviewer/${res.data.fileId}`); // 👈 should redirect
-    } else {
-      console.warn("No fileId returned from backend!");
+  // Auto navigate after all uploads complete
+  useEffect(() => {
+    if (progress.every((p) => p === 100) && progress.some((p) => p > 0)) {
+      setTimeout(() => navigate("/translator"), 1000);
     }
-  } catch (err) {
-    console.error("❌ Upload failed:", err);
-    setUploadMessage("❌ Upload failed. Please try again.");
-    setLoading(false);
-  }
-};
+  }, [progress, navigate]);
 
-
+  // Auto-scroll feature cards
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    const step = () => {
+      if (!paused) {
+        scrollContainer.scrollLeft += 0.5;
+        if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth / 2) {
+          scrollContainer.scrollLeft = 0;
+        }
+      }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [paused]);
 
   return (
-    <>
-      {/* Header */}
-      <header className="header">
-        <div className="left-section">
-          <img src={logo} alt="Logo" className="logo" />
-          <h2 className="title">H-Eval</h2>
-        </div>
+    <div className="relative flex flex-col min-h-screen font-inter text-white bg-black">
+      {/* Background */}
+      <BackgroundWords className="absolute inset-0 z-0" />
 
-        <nav className="center-nav">
-          <span onClick={() => scrollToSection("about")}>About</span>
-          <span onClick={() => scrollToSection("use")}>Use</span>
-          <span onClick={() => scrollToSection("upload")}>Upload</span>
-        </nav>
-
-        <div className="right-section">
-          <div className="menu-icon" onClick={() => setMenuOpen(!menuOpen)}>
-            &#9776;
+      {/* Navbar */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/70 backdrop-blur-lg">
+        <nav className="flex justify-between items-center max-w-6xl mx-auto p-4">
+          <div className="flex gap-6">
+            <a href="#home" className="hover:text-indigo-400">Home</a>
+            <a href="#about" className="hover:text-indigo-400">About</a>
+            <a href="#services" className="hover:text-indigo-400">Services</a>
+            <a href="#upload" className="hover:text-indigo-400">Upload</a>
+            <a href="#features" className="hover:text-indigo-400">Features</a>
+            <a href="#contact" className="hover:text-indigo-400">Contact</a>
           </div>
-          {menuOpen && (
-            <div className="dropdown">
-              <button className="logout-btn" onClick={handleLogoutWithEffect}>
-                Logout
-              </button>
-            </div>
-          )}
-        </div>
+          <button className="px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full hover:shadow-lg transition">
+            Logout
+          </button>
+        </nav>
       </header>
 
-      {/* About Section */}
-      <section id="about" className="container">
-        <h1 className="heading">Translator Features</h1>
-        <div className="feature-grid">
-          {features.map((f, i) => (
-            <StyledWrapper key={i}>
-              <div className="card">{f.title}</div>
-            </StyledWrapper>
-          ))}
-        </div>
-      </section>
+      {/* Spacer */}
+      <div className="h-20" />
 
-      {/* Upload Section Illustration */}
-      <div className="feature-container">
-        <div className="feature-image">
-          <img src={uploadimage} alt="Translation Illustration" />
-        </div>
-        <div className="feature-text">
-          <h2>Upload. Translate. Understand.</h2>
-          <p>
-            Easily upload XML files and view line-by-line translations. Perfect for learners,
-            researchers, and anyone working with multilingual content — simple, fast, and clear.
-          </p>
-        </div>
-      </div>
+      {/* Main */}
+      <main className="flex-1 relative z-10">
+        {/* Upload Section */}
+        <section id="upload" className="flex justify-center items-center py-24">
+          <div className="relative w-[420px] rounded-xl bg-gradient-to-b from-blue-900/30 to-black/40 backdrop-blur-md p-6 shadow-lg">
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-700 opacity-30 blur-2xl rounded-xl"></div>
 
-      {/* Upload File Section */}
-      <section id="upload" className="upload-container">
-        <div>
-          <label className="upload-label">
-            <input type="file" accept=".xml" onChange={handleEnglishChange} />
-            <span className="upload-btn-text">📁 Upload English File</span>
-          </label>
-          {englishFile && <p className="file-name">English: {englishFile.name}</p>}
-        </div>
+            <div className="relative z-10 space-y-4">
+              {/* File Type Dropdown */}
+              <select
+                value={selectedType}
+                onChange={(e) => setSelectedType(Number(e.target.value))}
+                className="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600"
+              >
+                {sections.map((label, index) => (
+                  <option key={index} value={index}>
+                    {label}
+                  </option>
+                ))}
+              </select>
 
-        <div>
-          <label className="upload-label">
-            <input type="file" accept=".xml" multiple onChange={handleTranslationsChange} />
-            <span className="upload-btn-text">📁 Upload 3 Translation Files</span>
-          </label>
-          {translationFiles.length > 0 && (
-            <ul>
-              {translationFiles.map((f, i) => (
-                <li key={i}>{f.name}</li>
+              {/* File Upload */}
+              <label htmlFor="fileInput" className="cursor-pointer flex items-center space-x-4">
+                <div className="relative w-16 h-20">
+                  <div className="w-full h-full rounded-lg bg-gradient-to-br from-blue-400 to-blue-700 shadow-md relative overflow-hidden">
+                    <div className="absolute inset-0 opacity-20 bg-[linear-gradient(90deg,rgba(255,255,255,0.2)_1px,transparent_1px),linear-gradient(rgba(255,255,255,0.2)_1px,transparent_1px)] bg-[length:20px_20px]"></div>
+                  </div>
+                  <div className="absolute -left-3 bottom-3 bg-gradient-to-br from-blue-900 to-blue-800 text-white text-xs font-bold px-3 py-1 rounded-md shadow-lg border border-gray-700">
+                    {files[selectedType] ? files[selectedType].ext : "TXT"}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-white font-medium text-lg truncate max-w-[220px]">
+                    {files[selectedType]
+                      ? files[selectedType].name
+                      : `${sections[selectedType]} File.txt`}
+                  </p>
+                  <p className="text-gray-400 text-sm">
+                    {files[selectedType] ? files[selectedType].size : "0 KB"}
+                  </p>
+                </div>
+              </label>
+              <input id="fileInput" type="file" className="hidden" onChange={handleFileSelect} />
+
+              {/* Progress Bar */}
+              <div className="mt-6">
+                <p className="text-gray-300 text-sm mb-2">
+                  {progress[selectedType] < 100 ? "Uploading..." : "Completed"}
+                </p>
+                <div className="w-full bg-gray-700/50 rounded-full h-3 overflow-hidden">
+                  <motion.div
+                    className="h-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-600"
+                    initial={{ width: "0%" }}
+                    animate={{ width: `${progress[selectedType]}%` }}
+                    transition={{ ease: "easeOut", duration: 0.5 }}
+                  />
+                </div>
+                <p className="text-right text-white font-semibold mt-2">{progress[selectedType]} %</p>
+              </div>
+
+              {/* Show All Progress */}
+              <div className="mt-4 text-gray-300 text-sm">
+                {sections.map((label, index) => (
+                  <p key={index}>{label}: {progress[index]}%</p>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section id="features" className="bg-black text-white py-20 px-6">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center">Key Features</h2>
+            <div
+              ref={scrollRef}
+              className="flex gap-6 overflow-hidden"
+              onMouseEnter={() => setPaused(true)}
+              onMouseLeave={() => setPaused(false)}
+            >
+              {cards.concat(cards).map((c, i) => (
+                <div
+                  key={i}
+                  className="flex-shrink-0 w-80 rounded-3xl bg-gradient-to-br from-gray-800 to-gray-900 p-6 flex flex-col justify-center transform transition duration-500 hover:scale-105 hover:rotate-1"
+                >
+                  <h3 className="text-xl font-semibold mb-2 break-words">{c.title}</h3>
+                  <p className="text-sm opacity-80 break-words">{c.desc}</p>
+                </div>
               ))}
-            </ul>
-          )}
-        </div>
-
-        <div>
-          {loading ? (
-            <div className="loader"></div>
-          ) : (
-            <button className="submit-btn" onClick={handleSubmit}>
-              Submit 🚀
-            </button>
-          )}
-        </div>
-
-        {uploadMessage && <p className="upload-message">{uploadMessage}</p>}
-      </section>
+            </div>
+          </div>
+        </section>
+      </main>
 
       {/* Footer */}
-      <footer className="footer">
-        <div className="footer-content">
-          <div className="footer-column">
-            <h4>About</h4>
-            <a href="#about">Our Mission</a>
-            <a href="#team">Team</a>
-            <a href="#faq">FAQ</a>
+      <footer className="w-full bg-gradient-to-t from-black/70 to-transparent text-gray-200 backdrop-blur-md py-6">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="text-2xl font-bold bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-400 bg-clip-text text-transparent"></div>
+          <div className="flex gap-6 text-sm">
+            {["Home", "About", "Services", "Upload", "Features", "Contact"].map((item) => (
+              <a key={item} href={`#${item.toLowerCase()}`} className="hover:text-indigo-400">{item}</a>
+            ))}
           </div>
-          <div className="footer-column">
-            <h4>Tools</h4>
-            <a href="#voice">Voice Translator</a>
-            <a href="#text">Text Translator</a>
-            <a href="#history">Translation History</a>
-          </div>
-          <div className="footer-column">
-            <h4>Resources</h4>
-            <a href="#help">Help Center</a>
-            <a href="#languages">Supported Languages</a>
-            <a href="#blog">Blog</a>
-          </div>
-          <div className="footer-column">
-            <h4>Follow Us</h4>
+          <div className="flex gap-4 text-lg">
+            <a href="#" className="hover:text-indigo-400"><i className="fab fa-facebook-f"></i></a>
+            <a href="#" className="hover:text-indigo-400"><i className="fab fa-twitter"></i></a>
+            <a href="#" className="hover:text-indigo-400"><i className="fab fa-linkedin-in"></i></a>
+            <a href="#" className="hover:text-indigo-400"><i className="fab fa-github"></i></a>
           </div>
         </div>
-        <hr />
-        <p className="footer-bottom">
-          &copy; {new Date().getFullYear()} H-Eval Translator. All rights reserved.
-        </p>
+        <div className="text-center text-xs text-gray-400 mt-4">
+          © {new Date().getFullYear()} H_EVAL. All rights reserved.
+        </div>
       </footer>
-    </>
+    </div>
   );
 };
 
