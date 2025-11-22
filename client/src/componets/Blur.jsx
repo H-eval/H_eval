@@ -30,19 +30,35 @@ const BlurText = ({
   const ref = useRef(null);
 
   useEffect(() => {
-    if (!ref.current) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          observer.unobserve(ref.current);
+  // capture current node so ref changes later don't affect cleanup
+  const node = ref.current;
+  if (!node) return;
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        setInView(true);
+
+        // Safer: unobserve the actual observed element from the entry
+        if (entry.target instanceof Element) {
+          observer.unobserve(entry.target);
+        } else {
+          // fallback: disconnect everything (safe)
+          observer.disconnect();
         }
-      },
-      { threshold, rootMargin }
-    );
-    observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [threshold, rootMargin]);
+      }
+    },
+    { threshold, rootMargin }
+  );
+
+  observer.observe(node);
+
+  // cleanup: disconnect to avoid any unobserve issues
+  return () => {
+    observer.disconnect();
+  };
+}, [threshold, rootMargin, ref]);
+
 
   const defaultFrom = useMemo(
     () =>

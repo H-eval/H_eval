@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 //import Aurora from "../components/Aurora";
 //import WebName from "../components/WebName";
  import Stepper, { Step } from '../components/Stepper';
- import BackgroundWords from "../components/BackgroundWords";
+ import BackgroundWords from "../componets/BackgroundWords";
   
 
 const LineViewer = () => {

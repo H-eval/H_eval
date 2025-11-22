@@ -10,7 +10,6 @@ import {
 import SplashScreen from "./page/SplashScreen";
 import Login from "./page/Login";
 import Home from "./page/Home";
-import TranslatePage from "./page/ViewTranslations";
 import LineViewer from "./page/LineViewer";
 
 function AppRoutes() {
@@ -18,6 +17,7 @@ function AppRoutes() {
   const navigate = useNavigate();
 
   return showSplash ? (
+    
     <SplashScreen
       onFinish={() => {
         console.log("✅ Splash finished — navigating to login");
@@ -35,7 +35,7 @@ function AppRoutes() {
       <Route path="/home" element={<Home />} />
 
       {/* Translation and Line Viewer pages */}
-      <Route path="/translate/:fileId" element={<TranslatePage />} />
+      {/* <Route path="/translate/:fileId" element={<TranslatePage />} /> */}
       <Route path="/lineviewer" element={<LineViewer />} />
       <Route path="/lineviewer/:fileId" element={<LineViewer />} />
     </Routes>
