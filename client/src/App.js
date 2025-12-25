@@ -36,8 +36,9 @@ function AppRoutes() {
 
       {/* Translation and Line Viewer pages */}
       {/* <Route path="/translate/:fileId" element={<TranslatePage />} /> */}
-      <Route path="/lineviewer" element={<LineViewer />} />
-      <Route path="/lineviewer/:fileId" element={<LineViewer />} />
+      {/* <Route path="/lineviewer" element={<LineViewer />} /> */}
+      <Route path="/translate/:id" element={<LineViewer />} />
+
     </Routes>
   );
 }

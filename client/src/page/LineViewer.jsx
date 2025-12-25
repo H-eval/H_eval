@@ -7,8 +7,11 @@ import { useParams } from "react-router-dom";
  import BackgroundWords from "../componets/BackgroundWords";
   
 
+
 const LineViewer = () => {
-  const { fileId } = useParams(); // may be undefined
+  const { id:fileId } = useParams(); // may be undefined
+  console.log("FILE ID FROM URL:", fileId);
+
   const [lines, setLines] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
