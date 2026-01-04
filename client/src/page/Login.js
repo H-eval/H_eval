@@ -35,9 +35,14 @@ function Login() {
       console.log("Token from server:", data.token);
 
       // OPTIONAL: save token
-      localStorage.setItem("token", data.token);
+    console.log("Token from server:", data.token);
 
-      navigate("/home");
+// 🔑 1️⃣ SAVE TOKEN
+localStorage.setItem("token", data.token);
+
+// 🔁 2️⃣ NAVIGATE WITH REPLACE
+navigate("/home", { replace: true });
+
     } catch (err) {
       console.error("Login error:", err);
       setError("Something went wrong. Please try again.");

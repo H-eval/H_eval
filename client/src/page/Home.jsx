@@ -18,21 +18,22 @@ export default function Home({onGoToEvaluation}) {
 
   const navigate = useNavigate();
   function handleLogout() {
-  // 1️⃣ Remove token
+  // // 1️⃣ Remove token
+  // localStorage.removeItem("token");
+
+  // // 2️⃣ (Optional) Inform backend
+  // fetch("http://localhost:5000/api/logout", {
+  //   method: "POST",
+  //   headers: {
+  //     Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //   },
+  // }).catch(() => {
+  //   // ignore error if backend logout fails
+  // });
   localStorage.removeItem("token");
-
-  // 2️⃣ (Optional) Inform backend
-  fetch("http://localhost:5000/api/logout", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  }).catch(() => {
-    // ignore error if backend logout fails
-  });
-
+  localStorage.removeItem("user");
   // 3️⃣ Redirect to login page
-  navigate("/login");
+  navigate("/login", { replace: true });
 }
 
 

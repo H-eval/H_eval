@@ -12,6 +12,8 @@ import Login from "./page/Login";
 import Home from "./page/Home";
 import LineViewer from "./page/LineViewer";
 import EvaluationPage from "./page/EvaluationPage";
+import ProtectedRoute from "./page/ProtectedRoute";
+
 
 function AppRoutes() {
   const [showSplash, setShowSplash] = useState(true);
@@ -33,7 +35,14 @@ function AppRoutes() {
 
       {/* Core pages */}
       <Route path="/login" element={<Login />} />
-      <Route path="/home" element={<Home />} />
+      <Route
+  path="/home"
+  element={
+    <ProtectedRoute>
+      <Home />
+    </ProtectedRoute>
+  }
+/>
 
       {/* Translation and Line Viewer pages */}
       {/* <Route path="/translate/:fileId" element={<TranslatePage />} /> */}
