@@ -175,9 +175,9 @@ async function handleUploadClick() {
       {/* NAVBAR */}
       <nav className="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold">
+          {/* <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold">
             P
-          </div>
+          </div> */}
           <span className="text-lg font-semibold">TATVA</span>
         </div>
 
@@ -320,7 +320,7 @@ async function handleUploadClick() {
       >
         <div className="w-[500px] h-[300px] rounded-[16px] overflow-hidden">
           <video
-            src="/demovideo.mp4"
+            src=""
             autoPlay
             loop
             muted
@@ -430,7 +430,7 @@ async function handleUploadClick() {
       </div>
     </section> */}
 
-      {/* ================= UPLOAD SECTION ================= */}
+    {/* ================= UPLOAD SECTION ================= */}
 <section id="upload" className="py-12">
   {/* Hidden input (multiple files) */}
   <input
@@ -448,7 +448,7 @@ async function handleUploadClick() {
         {title}
       </h2>
       <p className="text-lg text-gray-600">
-        Upload exactly 4 files (1 English + 3 Hindi)
+        Upload exactly 4 files 
       </p>
     </div>
 
@@ -522,34 +522,35 @@ async function handleUploadClick() {
                 <span className="text-xl font-semibold">TATVA</span>
               </div>
               <p id="footer-text" className="text-gray-300 mb-6">
-                {config.footer_text}
+                {"TATVA (h-eval) is a human-centric evaluation platform designed to assess the quality of machine translation systems across multiple languages using structured human judgments."
+}
               </p>
-              <p className="text-gray-400 text-sm">Contact: research@tatva-eval.org</p>
+              <p className="text-gray-400 text-sm">Contact: hevalpro5@gmail.com</p>
             </div>
 
             <div>
               <h3 className="text-lg font-semibold mb-6">Quick Links</h3>
               <div className="space-y-3">
-                <a href="#" className="block text-gray-300 hover:text-white">Documentation</a>
-                <a href="#upload" className="block text-gray-300 hover:text-white">Upload Data</a>
-                <a href="#" className="block text-gray-300 hover:text-white">Demo</a>
-                <a href="#" className="block text-gray-300 hover:text-white">Privacy Policy</a>
+                <a href="#home" className="block text-gray-300 hover:text-white">Home</a>
+                <a href="#features" className="block text-gray-300 hover:text-white">Features</a>
+                <a href="#how-it-works" className="block text-gray-300 hover:text-white">About Us</a>
+                <a href="#upload" className="block text-gray-300 hover:text-white">Upload</a>
               </div>
             </div>
 
             <div>
               <h3 className="text-lg font-semibold mb-6">Research</h3>
               <div className="space-y-3">
-                <a href="#" className="block text-gray-300 hover:text-white">Publications</a>
-                <a href="#" className="block text-gray-300 hover:text-white">Methodology</a>
-                <a href="#" className="block text-gray-300 hover:text-white">Open Source</a>
-                <a href="#" className="block text-gray-300 hover:text-white">License</a>
+                <a href="#" className="block text-gray-300 hover:text-white">Evaluation Methodology</a>
+                <a href="#" className="block text-gray-300 hover:text-white">Scoring Guidelines</a>
+                <a href="#https://github.com/H-eval/H_eval" className="block text-gray-300 hover:text-white">GitHub Repository</a>
+                {/* <a href="#" className="block text-gray-300 hover:text-white">License</a> */}
               </div>
             </div>
           </div>
 
           <div className="border-t border-gray-800 mt-12 pt-8 text-center">
-            <p className="text-gray-400">© 2024 TATVA Research Project. All rights reserved.</p>
+            <p className="text-gray-400">© 2025 TATVA (H-eval)</p>
           </div>
         </div>
       </footer>
@@ -558,8 +559,5 @@ async function handleUploadClick() {
   );
 }
   
-
-
-
 
 

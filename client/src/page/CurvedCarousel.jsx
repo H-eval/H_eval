@@ -116,7 +116,7 @@ const Card = ({ card, isActive, position, cfg, baseFontSize }) => {
   }}
 >
   <h3
-    className="font-semibold"
+    className="font-bold"
     style={{
       fontSize: `${baseFontSize * 1.25}px`,
       color: cfg.text_color || defaultConfig.text_color,
@@ -135,6 +135,7 @@ const Card = ({ card, isActive, position, cfg, baseFontSize }) => {
   }}
 >
   <p
+  className="font-bold"
     style={{
       fontSize: `${baseFontSize * 0.875}px`,
       color: "#000000",
