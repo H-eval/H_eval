@@ -1,12 +1,11 @@
 // src/pages/LineViewer.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-//import Aurora from "../components/Aurora";
+import { useNavigate } from "react-router-dom";
 //import WebName from "../components/WebName";
- import Stepper, { Step } from '../components/Stepper';
- import BackgroundWords from "../componets/BackgroundWords";
+import Stepper, { Step } from '../components/Stepper';
+import BackgroundWords from "../componets/BackgroundWords";
   
-
 
 const LineViewer = () => {
   const { id:fileId } = useParams(); // may be undefined
@@ -17,6 +16,8 @@ const LineViewer = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [posTags, setPosTags] = useState([]);
+  const navigate = useNavigate();
+
 
   // Call Python NLP service for POS tags
   const getPOSTags = async (sentence) => {
@@ -78,6 +79,7 @@ const LineViewer = () => {
 
   // Fetch POS tags whenever the current English line changes
   useEffect(() => {
+    setPosTags([]);
     if (lines.length > 0 && lines[currentIndex]) {
       const sentence = lines[currentIndex].text;
       getPOSTags(sentence).then((tags) => setPosTags(tags));
@@ -150,26 +152,33 @@ const LineViewer = () => {
     <Stepper
       initialStep={1}
       onStepChange={(step) => {
+        setCurrentIndex(step - 1); 
         console.log(step);
       }}
+      onEvaluate={() => {
+        const translationId = lines[currentIndex]?._id;
+        navigate(`/evaluate/${translationId}`);
+      }}
+
       onFinalStepCompleted={() => console.log("All steps completed!")}
       backButtonText="Previous"
       nextButtonText="Next"
     >
       {lines.map((line, idx) => (
-        <Step key={idx} className="bg-transparent">
+        <Step key={line._id || idx}className="bg-transparent">
           <div className="h-auto pr-2">
+
             {/* English Line with colored POS words */}
             <div className="mb-4">
-              <p className="text-lg font-semibold text-white flex flex-wrap gap-2">
+              <div className="text-lg font-semibold text-white flex flex-wrap gap-2">
                 <span className="text-gray-400">English:</span>
-                {posTags.length > 0 ? (
-                  posTags.map((token, idx) => {
+                {idx === currentIndex && posTags.length > 0 ? (
+                  posTags.map((token, i) => {
                     const color = posColorMap[token.upos] || "bg-gray-700";
                     return (
                       <span
-                        key={idx}
-                        className={`relative group px-2 py-1 rounded ${color} text-white cursor-pointer`}
+                        key={i}
+                        className={`relative group px-2 py-1 rounded ${color} text-white`}
                       >
                         {token.text}
                         {/* Tooltip */}
@@ -185,14 +194,15 @@ const LineViewer = () => {
                               <strong>NER:</strong> {token.ner}
                             </div>
                           )}
-                        </div>
+                        </div>   
                       </span>
                     );
                   })
                 ) : (
                   <span className="ml-2 text-gray-400">{line.text}</span>
-                )}
-              </p>
+              )}
+
+              </div>
             </div>
 
             {/* Legend Block */}
@@ -228,7 +238,7 @@ const LineViewer = () => {
             )}
           </div>
         </Step>
-      ))}
+     ))} 
     </Stepper>
   </div>
   </div>

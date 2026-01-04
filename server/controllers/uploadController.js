@@ -11,18 +11,23 @@ const parseXMLFile = async (filePath) => {
   const data = fs.readFileSync(filePath, "utf8");
   const result = await xml2js.parseStringPromise(data);
 
-  const sentences =
-    result["EILMT-Consortia"]?.body?.[0]?.p?.[0]?.segment?.[0]?.sentence || [];
+   const sentences =
+    result?.["EILMT-Consortia"]
+      ?.body?.[0]
+      ?.p?.[0]
+      ?.segment?.[0]
+      ?.sentence || [];
 
   return sentences.map((s, index) => ({
     sentenceNumber: s.$?.sentencenumber || index + 1,
-    text: s._ ? s._.trim() : "",
+    text: typeof s === "string" ? s.trim() : s._?.trim() || "",
   }));
 };
 
 // Upload handler
 const uploadFiles = async (req, res) => {
   try {
+    console.log("FILES RECEIVED:", req.files);
     const englishFile = req.files?.english?.[0];
     const translationFiles = req.files?.translations || [];
 
@@ -40,6 +45,7 @@ const uploadFiles = async (req, res) => {
     const sentenceIdMap = {};
 
     for (const s of englishSentences) {
+      if (!s.text) continue;
       const savedSentence = await Sentence.create({
         fileId, // link sentences to this upload
         text: s.text,
@@ -67,6 +73,7 @@ const uploadFiles = async (req, res) => {
       const hindiSentences = await parseXMLFile(translationFiles[i].path);
 
       for (const s of hindiSentences) {
+        if (!s.text) continue;
         const sentenceObjectId = sentenceIdMap[s.sentenceNumber];
         if (!sentenceObjectId) continue;
 
@@ -86,8 +93,37 @@ const uploadFiles = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Upload error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
 module.exports = { uploadFiles };
+
+
+
+
+// const mongoose = require("mongoose");
+
+// const uploadSchema = new mongoose.Schema({
+//   files: [String],   // xml/json paths
+//   parsedSentences: [
+//     {
+//       text: String,
+//       translations: [
+//         {
+//           translatedText: String,
+//           translator: String
+//         }
+//       ]
+//     }
+//   ],
+//   createdAt: {
+//     type: Date,
+//     default: Date.now,
+//   },
+// });
+
+// module.exports = mongoose.model("Upload", uploadSchema);

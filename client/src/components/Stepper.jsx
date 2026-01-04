@@ -1,5 +1,6 @@
- import React, { useState, Children, useRef, useLayoutEffect } from 'react';
+import React, { useState, Children, useRef, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+
 
 export default function Stepper({
   children,
@@ -16,6 +17,7 @@ export default function Stepper({
   nextButtonText = 'Continue',
   disableStepIndicators = false,
   renderStepIndicator,
+  onEvaluate = () => {},
   ...rest
 }) {
   const [currentStep, setCurrentStep] = useState(initialStep);
@@ -72,26 +74,38 @@ export default function Stepper({
         </StepContentWrapper>
         {!isCompleted && (
           <div className={`px-8 pb-8 ${footerClassName}`}>
-            <div className={`mt-10 flex ${currentStep !== 1 ? 'justify-between' : 'justify-end'}`}>
-              {currentStep !== 1 && (
+            <div  className="mt-10 flex items-center justify-between">
+
+                {/* LEFT GROUP: Previous + Next */}
+                <div className="flex items-center gap-4">
                 <button
                   onClick={handleBack}
-                  className={`duration-350 rounded px-2 py-1 transition ${
+                  disabled={currentStep === 1}
+                  className={`duration-300 rounded px-4 py-2 transition ${
                     currentStep === 1
-                      ? 'pointer-events-none opacity-50 text-neutral-400'
-                      : 'text-neutral-400 hover:text-neutral-700'
+                      ? 'opacity-40 cursor-not-allowed'
+                      : 'text-neutral-400 hover:text-white'
                   }`}
                   {...backButtonProps}
                 >
                   {backButtonText}
                 </button>
-              )}
+              
               <button
                 onClick={isLastStep ? handleComplete : handleNext}
-                className="duration-350 flex items-center justify-center rounded-full bg-green-500 py-1.5 px-3.5 font-medium tracking-tight text-white transition hover:bg-green-600 active:bg-green-700"
+                className="duration-300 flex items-center justify-center rounded-full bg-green-500 py-2 px-5 font-medium tracking-tight text-white transition hover:bg-green-600 active:bg-green-700"
                 {...nextButtonProps}
               >
                 {isLastStep ? 'Complete' : nextButtonText}
+              </button>
+              </div>
+
+              {/* RIGHT GROUP: Evaluate */}
+              <button
+                onClick={onEvaluate}
+                className="duration-300 rounded-full bg-green-500 px-5 py-2 font-medium text-white transition hover:bg-green-600 active:bg-green-700"
+              >
+                Evaluate
               </button>
             </div>
           </div>

@@ -60,6 +60,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const rankRoutes = require('./routes/RankRoutes');
 require("dotenv").config();
 
 const app = express();
@@ -70,10 +71,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // routes
-app.use("/api", require("./routes/upload")); // ✅ ONLY THIS
+app.use("/api", require("./routes/uploadRoutes")); // ✅ ONLY THIS
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api", require("./routes/translationRoutes"));
 app.use("/api/nlp", require("./routes/nlproutes"));
+app.use('/api/ranks', rankRoutes);
 
 // test route
 app.get("/", (req, res) => {

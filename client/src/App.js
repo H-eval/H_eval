@@ -1,4 +1,4 @@
- import React, { useState } from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -11,6 +11,7 @@ import SplashScreen from "./page/SplashScreen";
 import Login from "./page/Login";
 import Home from "./page/Home";
 import LineViewer from "./page/LineViewer";
+import EvaluationPage from "./page/EvaluationPage";
 
 function AppRoutes() {
   const [showSplash, setShowSplash] = useState(true);
@@ -37,7 +38,9 @@ function AppRoutes() {
       {/* Translation and Line Viewer pages */}
       {/* <Route path="/translate/:fileId" element={<TranslatePage />} /> */}
       {/* <Route path="/lineviewer" element={<LineViewer />} /> */}
-      <Route path="/translate/:id" element={<LineViewer />} />
+      <Route path="/lineviewer/:id" element={<LineViewer />} />
+
+      <Route path="/evaluate/:translationId" element={<EvaluationPage />} />
 
     </Routes>
   );

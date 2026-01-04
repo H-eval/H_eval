@@ -58,15 +58,38 @@ function handleFileSelect(selectedFiles) {
 
 
 async function handleUploadClick() {
+  if (uploading) return;
+
   if (files.length !== 4) {
     alert("Please select 4 files first");
     return;
   }
 
-  const formData = new FormData();
-  files.forEach((file) => {
-    formData.append("files", file);
-  });
+      const englishFile = files.find(file =>
+      file.name.toLowerCase().includes("_en")
+    );
+
+    const translationFiles = files.filter(file =>
+      file.name.toLowerCase().includes("_hi")
+    );
+
+    if (!englishFile || translationFiles.length !== 3) {
+      alert("Must upload 1 English (_En.xml) and 3 Hindi (_Hi_*.xml) files");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("english", englishFile);
+    translationFiles.forEach(file =>
+      formData.append("translations", file)
+    );
+
+  
+    // 🔍 DEBUG: see exactly what is being sent
+  console.log("FormData entries:");
+  for (let pair of formData.entries()) {
+    console.log(pair[0], pair[1].name);
+  }
 
   
   setUploading(true);
@@ -85,13 +108,15 @@ async function handleUploadClick() {
     }
     const data = await res.json();
 
-    setUploading(false);
+    console.log("Upload response RAW:", data);
+    setFiles([]); 
     setUploadVisible(true);
 
-    navigate(`/translate/${data.uploadId}`);
+    navigate(`/lineviewer/${data.fileId}`);
   } catch (err) {
-    setUploading(false);
     alert("Upload failed");
+  }finally{
+    setUploading(false);
   }
 }
 

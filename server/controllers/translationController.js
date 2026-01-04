@@ -1,75 +1,47 @@
-// // controllers/translationController.js
-// const Sentence = require("../models/Sentence");
-// const Translation = require("../models/Translation");
-
-// const getAllSequences = async (req, res) => {
-//   try {
-
-//     const fileId = req.query.fileId;
-
-// console.log("FILE ID FROM QUERY:", fileId);
-
-// if (!fileId) {
-//   return res.status(400).json({ message: "fileId missing" });
-// }
-
-//     const sentences = await Sentence.find().lean();
-
-//     const translations = await Translation.find()
-//       .populate("TID", "code name")
-//       .lean();
-
-//     const grouped = {};
-//     translations.forEach((t) => {
-//       const sid = t.SID?.toString();
-//       if (!sid) return;
-//       if (!grouped[sid]) grouped[sid] = [];
-//       grouped[sid].push({
-//         translator: t.TID,
-//         translatedText: t.translatedText,
-//         evaluated: t.evaluated,
-//       });
-//     });
-
-//     const response = sentences.map((s) => ({
-//       sentenceId: s._id,
-//       text: s.text,
-//       translations: grouped[s._id.toString()] || [],
-//     }));
-
-//     res.json(response);
-//   } catch (error) {
-//     console.error("❌ Error fetching sequences:", error);
-//     res.status(500).json({ message: "Server error", error: error.message });
-//   }
-// };
-
-// // ✅ Make sure it’s exported as an object
-// module.exports = { getAllSequences };
-
-const Upload = require("../models/Upload");
+ const Sentence = require("../models/Sentence");
+const Translation = require("../models/Translation");
 
 const getAllSequences = async (req, res) => {
   try {
-    const fileId = req.query.fileId;
+    const { fileId } = req.query;
     console.log("FILE ID FROM QUERY:", fileId);
 
     if (!fileId) {
       return res.status(400).json({ message: "fileId missing" });
     }
 
-    const upload = await Upload.findById(fileId);
+    // 1️⃣ Fetch all English sentences for this upload
+    const sentences = await Sentence.find({ fileId }).lean();
 
-    if (!upload) {
-      return res.status(404).json({ message: "Upload not found" });
+    if (!sentences.length) {
+      return res.json([]); // LineViewer will show "No lines found"
     }
 
-    // 🔹 TEMP RESPONSE (debug)
-    // jab tak parsing nahi hoti
-    const response = upload.files.map((f, idx) => ({
-      sentenceId: idx,
-      text: `Sentence from ${f}`,
-      translations: []
+    // 2️⃣ Fetch all translations linked to these sentences
+    const sentenceIds = sentences.map(s => s._id);
+
+    const translations = await Translation.find({
+      SID: { $in: sentenceIds }
+    })
+      .populate("TID", "code")
+      .lean();
+
+    // 3️⃣ Group translations by sentence ID
+    const translationMap = {};
+    translations.forEach(t => {
+      const sid = t.SID.toString();
+      if (!translationMap[sid]) translationMap[sid] = [];
+      translationMap[sid].push({
+        translator: t.TID?.code || "UNKNOWN",
+        translatedText: t.translatedText
+      });
+    });
+
+    // 4️⃣ Build final response exactly how LineViewer wants
+    const response = sentences.map(s => ({
+      sentenceId: s._id,
+      text: s.text,
+      translations: translationMap[s._id.toString()] || []
     }));
 
     res.json(response);
@@ -80,4 +52,3 @@ const getAllSequences = async (req, res) => {
 };
 
 module.exports = { getAllSequences };
-

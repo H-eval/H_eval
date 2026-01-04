@@ -95,7 +95,7 @@ export default function SplashScreen({ onFinish }) {
       )}
 
       {/* Floating words CSS */}
-      <style jsx>{`
+      <style >{`
         .floating-word {
           position: absolute;
           color: rgba(255, 255, 255, 0.25);
