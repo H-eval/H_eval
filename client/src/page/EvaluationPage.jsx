@@ -106,7 +106,7 @@ const EvaluationPage = ({ translationId, userId, onBack }) => {
         Criterions: criterionsArray
       };
 
-      const response = await fetch('http://localhost:5000/api/ranks', {
+      const response = await fetch('http://localhost:5000/api/ranks/rank', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
