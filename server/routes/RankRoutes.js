@@ -2,12 +2,17 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
+
+const { submitOrUpdateRank } = require("../controllers/rankController");
+
 const Rank = require('../models/Rank');
 const Criterion = require('../models/Criterion');
 
 const validScores = ["4", "3", "2", "1", "0", "NA"];
 
+router.post("/rank", submitOrUpdateRank);
 // GET /api/ranks/criteria - Get all criteria for evaluation form
+
 router.get('/criteria', async (req, res) => {
   try {
     const criteria = await Criterion.find({}).sort({ CId: 1 });
@@ -31,85 +36,85 @@ router.get('/criteria', async (req, res) => {
 });
 
 // POST /api/ranks - Create a new rank/rating
-router.post('/', async (req, res) => {
-  try {
-    const { Super_ID, UserId, Criterions } = req.body;
+// router.post('/', async (req, res) => {
+//   try {
+//     const { Super_ID, UserId, Criterions } = req.body;
 
-    // Validate required fields
-    if (!Super_ID || !UserId) {
-      return res.status(400).json({ 
-        message: 'Super_ID and UserId are required' 
-      });
-    }
+//     // Validate required fields
+//     if (!Super_ID || !UserId) {
+//       return res.status(400).json({ 
+//         message: 'Super_ID and UserId are required' 
+//       });
+//     }
 
-    if (!Array.isArray(Criterions) || Criterions.length === 0) {
-      return res.status(400).json({ 
-        message: 'Criterions must be a non-empty array' 
-      });
-    }
+//     if (!Array.isArray(Criterions) || Criterions.length === 0) {
+//       return res.status(400).json({ 
+//         message: 'Criterions must be a non-empty array' 
+//       });
+//     }
 
-    // Validate each criterion
-    for (const criterion of Criterions) {
-      if (!criterion.name || !criterion.score) {
-        return res.status(400).json({ 
-          message: 'Each criterion must have name and score' 
-        });
-      }
-      if (!validScores.includes(criterion.score)) {
-        return res.status(400).json({ 
-          message: `Invalid score: ${criterion.score}. Valid scores are: ${validScores.join(', ')}` 
-        });
-      }
-    }
+//     // Validate each criterion
+//     for (const criterion of Criterions) {
+//       if (!criterion.name || !criterion.score) {
+//         return res.status(400).json({ 
+//           message: 'Each criterion must have name and score' 
+//         });
+//       }
+//       if (!validScores.includes(criterion.score)) {
+//         return res.status(400).json({ 
+//           message: `Invalid score: ${criterion.score}. Valid scores are: ${validScores.join(', ')}` 
+//         });
+//       }
+//     }
 
-    // Check if rank already exists for this user and translation
-    const existingRank = await Rank.findOne({ Super_ID, UserId });
-    if (existingRank) {
-      return res.status(409).json({ 
-        message: 'A rank already exists for this user and translation combination. Use PUT to update.' 
-      });
-    }
+//     // Check if rank already exists for this user and translation
+//     const existingRank = await Rank.findOne({ Super_ID, UserId });
+//     if (existingRank) {
+//       return res.status(409).json({ 
+//         message: 'A rank already exists for this user and translation combination. Use PUT to update.' 
+//       });
+//     }
 
-    // Create new rank
-    const rank = new Rank({
-      Super_ID,
-      UserId,
-      Criterions
-    });
+//     // Create new rank
+//     const rank = new Rank({
+//       Super_ID,
+//       UserId,
+//       Criterions
+//     });
 
-    const savedRank = await rank.save();
+//     const savedRank = await rank.save();
     
-    // Populate references and return
-    const populatedRank = await Rank.findById(savedRank._id)
-      .populate('Super_ID')
-      .populate('UserId');
+//     // Populate references and return
+//     const populatedRank = await Rank.findById(savedRank._id)
+//       .populate('Super_ID')
+//       .populate('UserId');
 
-    res.status(201).json({
-      message: 'Rank created successfully',
-      rank: populatedRank
-    });
-  } catch (error) {
-    // Handle unique constraint violation
-    if (error.code === 11000) {
-      return res.status(409).json({ 
-        message: 'A rank already exists for this user and translation combination' 
-      });
-    }
+//     res.status(201).json({
+//       message: 'Rank created successfully',
+//       rank: populatedRank
+//     });
+//   } catch (error) {
+//     // Handle unique constraint violation
+//     if (error.code === 11000) {
+//       return res.status(409).json({ 
+//         message: 'A rank already exists for this user and translation combination' 
+//       });
+//     }
     
-    // Handle validation errors
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({ 
-        message: error.message 
-      });
-    }
+//     // Handle validation errors
+//     if (error.name === 'ValidationError') {
+//       return res.status(400).json({ 
+//         message: error.message 
+//       });
+//     }
 
-    console.error('❌ Error creating rank:', error);
-    res.status(500).json({ 
-      message: 'Server error', 
-      error: error.message 
-    });
-  }
-});
+//     console.error('❌ Error creating rank:', error);
+//     res.status(500).json({ 
+//       message: 'Server error', 
+//       error: error.message 
+//     });
+//   }
+// });
 
 // GET /api/ranks - Get ranks with optional query filters
 router.get('/', async (req, res) => {
