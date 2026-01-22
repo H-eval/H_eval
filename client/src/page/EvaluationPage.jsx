@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, CheckCircle, AlertCircle } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
 
-const EvaluationPage = ({ translationId, userId, onBack }) => {
+const EvaluationPage = () => {
+  const { sentenceId, translationId,userId} = useParams();
+  const navigate = useNavigate();
+
+
   const [criteria, setCriteria] = useState([]);
   const [ratings, setRatings] = useState({});
   const [comments, setComments] = useState({});
@@ -14,6 +19,8 @@ const EvaluationPage = ({ translationId, userId, onBack }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const token = localStorage.getItem("token");
+
 
   const scores = [
     { value: 4, label: '4', color: 'bg-green-600', tooltip: 'Ideal / अति उत्तम' },
@@ -75,7 +82,7 @@ const EvaluationPage = ({ translationId, userId, onBack }) => {
       setLiveAverage(newAverage);
       setTimeout(() => setAveragePulse(false), 600);
     }
-  }, [ratings]);
+  }, [ratings, liveAverage]);
 
   const handleRating = (criterionId, score) => {
     setAnimatingButton(`${criterionId}-${score}`);
@@ -87,59 +94,71 @@ const EvaluationPage = ({ translationId, userId, onBack }) => {
   const handleComment = (criterionId, comment) => {
     setComments({ ...comments, [criterionId]: comment });
   };
-
   const handleSubmit = async () => {
-    try {
-      setSubmitting(true);
-      setError(null);
+  try {
+    setSubmitting(true);
+    setError(null);
 
-      // Prepare criterions array for submission
-      const criterionsArray = criteria.map(criterion => ({
-        name: criterion.CName,
-        score: ratings[criterion._id]?.toString() || 'NA',
-        comment: comments[criterion._id] || ''
-      }));
+    // Build array of criterion evaluations
+    const criterionsArray = criteria.map(criterion => ({
+      name: criterion.CName,
+      score: ratings[criterion._id]?.toString() || 'NA',
+      comment: comments[criterion._id] || ''
+    }));
 
-      const payload = {
-        Super_ID: translationId || '507f1f77bcf86cd799439011', // Replace with actual translation ID
-        UserId: userId || '507f191e810c19729de860ea', // Replace with actual user ID
-        Criterions: criterionsArray
-      };
+    // Build payload with dynamic userId
+    const payload = {
+      SID: sentenceId,
+      TID: translationId,
+      Criterions: criterionsArray
+    };
 
-      const response = await fetch('http://localhost:5000/api/ranks/rank', {
-        method: 'POST',
+    console.log('📤 Submitting evaluation:', payload);
+
+     const response = await fetch("http://localhost:5000/api/ranks/rank", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // 🔑
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to submit ranking');
-      }
+    if (!response.ok) throw new Error(data.message || 'Failed to submit ranking');
 
-      setSubmitted(true);
-      setTimeout(() => {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-      }, 100);
-    } catch (err) {
-      console.error('Error submitting ranking:', err);
-      setError(err.message || 'Failed to submit ranking. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    console.log('✅ Evaluation submitted successfully:', data);
+    setSubmitted(true);
+
+    // Optional: navigate to LineViewer after submit
+    // navigate(`/lineviewer/${sentenceId}/${userId}`);
+
+    setTimeout(() => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }, 100);
+
+  } catch (err) {
+    console.error('Error submitting ranking:', err);
+    setError(err.message || 'Failed to submit ranking. Please try again.');
+  } finally {
+    setSubmitting(false);
+  }
+};
+
+  
 
   const handleBack = () => {
-    if (onBack) {
-      onBack();
-    } else {
+    if (submitted) {
+      // If submitted, reset form for new evaluation
       setSubmitted(false);
       setRatings({});
       setComments({});
       setFocusedCriterion(null);
+      setError(null);
+    } else {
+      // If not submitted, navigate back to previous page
+      navigate(-1);
     }
   };
 
@@ -225,7 +244,7 @@ const EvaluationPage = ({ translationId, userId, onBack }) => {
             
             <button onClick={handleBack} className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all border border-gray-600 hover:scale-105">
               <ChevronLeft className="w-4 h-4" />
-              Back
+              {submitted ? 'New Evaluation' : 'Back'}
             </button>
           </div>
         </div>
@@ -370,6 +389,9 @@ const EvaluationPage = ({ translationId, userId, onBack }) => {
 
               <div className="flex gap-4">
                 <button onClick={handleBack} className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-semibold transition-all border border-gray-600 hover:scale-105">
+                  Start New Evaluation
+                </button>
+                <button onClick={() => navigate(-1)} className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold transition-all hover:scale-105">
                   Back to Translations
                 </button>
               </div>

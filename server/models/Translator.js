@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
 const translatorSchema = new mongoose.Schema({
-  code: { type: String, required: true, unique: true }, // e.g. "T01"
-  name: { type: String, required: true }
-}, { timestamps: true });
+  T_ID: String,   // generated internally (T1, T2...)
+  TName: String,
+});
 
 module.exports = mongoose.model("Translator", translatorSchema);

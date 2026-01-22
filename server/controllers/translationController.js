@@ -1,52 +1,46 @@
- const Sentence = require("../models/Sentence");
+// controllers/translationController.js
+const Sentence = require("../models/Sentence");
 const Translation = require("../models/Translation");
+const Translator = require("../models/Translator");
 
 const getAllSequences = async (req, res) => {
   try {
-    const { fileId } = req.query;
-    console.log("FILE ID FROM QUERY:", fileId);
+    // 1️⃣ get most recent batch
+    const latestSentence = await Sentence.findOne().sort({ createdAt: -1 });
 
-    if (!fileId) {
-      return res.status(400).json({ message: "fileId missing" });
+    if (!latestSentence) {
+      return res.json([]);
     }
 
-    // 1️⃣ Fetch all English sentences for this upload
-    const sentences = await Sentence.find({ fileId }).lean();
+    const batchId = latestSentence.batchId;
 
-    if (!sentences.length) {
-      return res.json([]); // LineViewer will show "No lines found"
-    }
+    // 2️⃣ fetch all sentences
+    const sentences = await Sentence.find({ batchId }).lean();
 
-    // 2️⃣ Fetch all translations linked to these sentences
-    const sentenceIds = sentences.map(s => s._id);
+    // 3️⃣ fetch translations
+    const translations = await Translation.find({ batchId }).lean();
 
-    const translations = await Translation.find({
-      SID: { $in: sentenceIds }
-    })
-      .populate("TID", "code")
-      .lean();
-
-    // 3️⃣ Group translations by sentence ID
-    const translationMap = {};
+    // 4️⃣ group translations by S_ID
+    const map = {};
     translations.forEach(t => {
-      const sid = t.SID.toString();
-      if (!translationMap[sid]) translationMap[sid] = [];
-      translationMap[sid].push({
-        translator: t.TID?.code || "UNKNOWN",
-        translatedText: t.translatedText
+      if (!map[t.S_ID]) map[t.S_ID] = [];
+      map[t.S_ID].push({
+        translator: t.T_ID,
+        translatedText: t.Indian_Translation,
+        _id: t._id
       });
     });
 
-    // 4️⃣ Build final response exactly how LineViewer wants
+    // 5️⃣ build response
     const response = sentences.map(s => ({
       sentenceId: s._id,
-      text: s.text,
-      translations: translationMap[s._id.toString()] || []
+      text: s.SourceSentence,
+      translations: map[s.S_ID] || []
     }));
 
     res.json(response);
-  } catch (error) {
-    console.error("❌ Error fetching sequences:", error);
+  } catch (err) {
+    console.error("❌ Translation fetch error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

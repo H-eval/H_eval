@@ -1,22 +1,19 @@
- const mongoose = require("mongoose");
+const mongoose = require("mongoose");
 
-const translationSchema = new mongoose.Schema(
-  {
-    fileId: { type: String, required: true }, // 🔑 SAME upload identifier
-    SID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Sentence",
-      required: true
-    },
-    TID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Translator",
-      required: true
-    },
-    translatedText: { type: String, required: true },
-    evaluated: { type: Boolean, default: false }
+const translationSchema = new mongoose.Schema({
+  batchId: {
+    type: String,
+    required: true,
+    index: true,
   },
-  { timestamps: true }
-);
+  S_ID: Number,
+  T_ID: String,
+  SuperId: String,
+  Indian_Translation: String,
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
 module.exports = mongoose.model("Translation", translationSchema);

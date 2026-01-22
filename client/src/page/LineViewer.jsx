@@ -1,15 +1,13 @@
 // src/pages/LineViewer.jsx
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 //import WebName from "../components/WebName";
 import Stepper, { Step } from '../components/Stepper';
 import BackgroundWords from "../componets/BackgroundWords";
   
 
 const LineViewer = () => {
-  const { id:fileId } = useParams(); // may be undefined
-  console.log("FILE ID FROM URL:", fileId);
+  
 
   const [lines, setLines] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -31,7 +29,7 @@ const LineViewer = () => {
       if (!res.ok) throw new Error("Failed to fetch POS tags");
 
       const data = await res.json();
-      return data.tokens || []; // array of { text, lemma, upos, ner }
+      return data.tokens || []; 
     } catch (err) {
       console.error("NLP service error:", err);
       return [];
@@ -51,31 +49,23 @@ const LineViewer = () => {
     PUNCT: "bg-gray-600",
   };
 
-  // const getRandomColor = () => {
-  //   return posColors[Math.floor(Math.random() * posColors.length)];
-  // };
-
-  // Fetch translations from Node backend
+  // 🔥 Fetch MOST RECENT file (backend already handles this)
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const url = `http://localhost:5000/api/translations/sequences${
-          fileId ? `?fileId=${fileId}` : ""
-        }`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error("Failed to fetch translations");
+        const res = await fetch(
+          "http://localhost:5000/api/translations/sequences"
+        );
         const data = await res.json();
         setLines(data || []);
-      } catch (err) {
-        console.error(err);
-        setError("Could not load translations.");
+      } catch {
+        setError("Could not load translations");
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
-  }, [fileId]);
+  }, []);
 
   // Fetch POS tags whenever the current English line changes
   useEffect(() => {
@@ -116,35 +106,8 @@ const LineViewer = () => {
    
   return (
   <div className="relative min-h-screen bg-gray-900 text-white flex justify-center items-center p-6 overflow-hidden">
-    {/* Aurora Background
-    <Aurora
-      className="absolute inset-0"
-      colorStops={["#1C1C1C", "#555555", "#888888"]}
-      blend={0.5}
-      amplitude={1.0}
-      speed={0.5}
-    /> */}
-
-    {/* Animated Words Background */}
+  
     <BackgroundWords />
-
-    {/* Website Name in Top Left */}
-     {/* <div className="absolute top-4 left-4 z-20">
-      <WebName
-        text="TATVA"
-        className="text-3xl font-bold text-blue-400"
-        delay={100}
-        duration={0.6}
-        ease="power3.out"
-        splitType="chars"
-        from={{ opacity: 0, y: 40 }}
-        to={{ opacity: 1, y: 0 }}
-        threshold={0.1}
-        rootMargin="-100px"
-        textAlign="left"
-        onLetterAnimationComplete={handleAnimationComplete}
-      />
-    </div>  */}
     <div className=" 
                     w-full max-w-11xl 
                     min-h-[75vh] max-h-[85vh] 
@@ -155,17 +118,9 @@ const LineViewer = () => {
         setCurrentIndex(step - 1); 
         console.log(step);
       }}
-      onEvaluate={() => {
-        const translationId = lines[currentIndex]?._id;
-        navigate(`/evaluate/${translationId}`);
-      }}
-
-      onFinalStepCompleted={() => console.log("All steps completed!")}
-      backButtonText="Previous"
-      nextButtonText="Next"
     >
       {lines.map((line, idx) => (
-        <Step key={line._id || idx}className="bg-transparent">
+        <Step key={line.sentenceId || idx}className="bg-transparent">
           <div className="h-auto pr-2">
 
             {/* English Line with colored POS words */}
@@ -219,23 +174,31 @@ const LineViewer = () => {
             </div>
 
             {/* Hindi Translations */}
-            {line.translations?.length > 0 ? (
-              <div className="mt-4">
-                {line.translations.map((t, tIdx) => (
-                  <p
-                    key={tIdx}
-                    className="text-gray-200 bg-gray-800 px-3 py-2 rounded-lg border border-gray-700 mb-1"
-                  >
-                    <span className="font-semibold text-blue-400">
-                      {t?.translator?.code || `T0${tIdx + 1}`}:
+            <div className="space-y-3 mt-4">
+              {line.translations.map((t) => (
+                <div
+                  key={t._id}
+                  className="bg-gray-800 p-3 rounded border border-gray-700"
+                >
+                  <p>
+                    <span className="text-blue-400 font-semibold">
+                      {t.translator}:
                     </span>{" "}
-                    {t?.translatedText}
+                    {t.translatedText}
                   </p>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500 mt-4">No translations available</p>
-            )}
+
+                  {/* 🔥 EVALUATE BUTTON */}
+                  <button
+                    className="mt-2 px-3 py-1 bg-blue-600 rounded hover:bg-blue-700"
+                    onClick={() =>
+                       navigate(`/evaluate/${line.sentenceId || line.S_ID}/${t.T_ID || t._id}`)
+                    }
+                  >
+                    Evaluate
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </Step>
      ))} 

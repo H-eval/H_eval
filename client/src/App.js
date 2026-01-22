@@ -13,6 +13,7 @@ import Home from "./page/Home";
 import LineViewer from "./page/LineViewer";
 import EvaluationPage from "./page/EvaluationPage";
 import ProtectedRoute from "./page/ProtectedRoute";
+import Corell from "./page/corell";
 
 
 function AppRoutes() {
@@ -47,9 +48,13 @@ function AppRoutes() {
       {/* Translation and Line Viewer pages */}
       {/* <Route path="/translate/:fileId" element={<TranslatePage />} /> */}
       {/* <Route path="/lineviewer" element={<LineViewer />} /> */}
-      <Route path="/lineviewer/:id" element={<LineViewer />} />
+      <Route path="/lineviewer" element={<LineViewer />} />
 
-      <Route path="/evaluate/:translationId" element={<EvaluationPage />} />
+
+      <Route path="/evaluate/:sentenceId/:translationId"element={<EvaluationPage />}/>
+
+
+      <Route path="/corell" element={<Corell />} />
 
     </Routes>
   );

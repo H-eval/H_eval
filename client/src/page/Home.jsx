@@ -113,7 +113,8 @@ async function handleUploadClick() {
     setFiles([]); 
     setUploadVisible(true);
 
-    navigate(`/lineviewer/${data.fileId}`);
+    navigate("/lineviewer");
+
   } catch (err) {
     alert("Upload failed");
   }finally{

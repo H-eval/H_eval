@@ -1,99 +1,84 @@
-// controllers/uploadController.js
-const fs = require("fs");
-const { v4: uuidv4 } = require("uuid"); // <-- add uuid
-const xml2js = require("xml2js");
+const { v4: uuidv4 } = require("uuid");
 const Sentence = require("../models/Sentence");
-const Translation = require("../models/Translation");
 const Translator = require("../models/Translator");
+const Translation = require("../models/Translation");
+const parseXML = require("../utils/xmlParser");
 
-// Parse XML → extract <sentence>
-const parseXMLFile = async (filePath) => {
-  const data = fs.readFileSync(filePath, "utf8");
-  const result = await xml2js.parseStringPromise(data);
-
-   const sentences =
-    result?.["EILMT-Consortia"]
-      ?.body?.[0]
-      ?.p?.[0]
-      ?.segment?.[0]
-      ?.sentence || [];
-
-  return sentences.map((s, index) => ({
-    sentenceNumber: s.$?.sentencenumber || index + 1,
-    text: typeof s === "string" ? s.trim() : s._?.trim() || "",
-  }));
-};
-
-// Upload handler
 const uploadFiles = async (req, res) => {
   try {
-    console.log("FILES RECEIVED:", req.files);
     const englishFile = req.files?.english?.[0];
     const translationFiles = req.files?.translations || [];
 
-    if (!englishFile || translationFiles.length !== 3) {
+    if (!englishFile || translationFiles.length === 0) {
       return res.status(400).json({
-        message: "Upload 1 English file and exactly 3 translation files",
+        message: "English file and at least one translation file required",
       });
     }
 
-    // 1️⃣ Generate unique fileId
-    const fileId = uuidv4();
+    // 🔑 One batchId per upload (THIS is what enables “most recent file”)
+    const batchId = uuidv4();
 
-    // 2️⃣ Parse English and insert into Sentence collection
-    const englishSentences = await parseXMLFile(englishFile.path);
-    const sentenceIdMap = {};
+    // 1️⃣ Parse English XML
+    const englishSentences = await parseXML(englishFile.path);
 
+    if (!englishSentences.length) {
+      return res.status(400).json({
+        message: "English file contains no sentences",
+      });
+    }
+
+    // 2️⃣ Store English sentences
     for (const s of englishSentences) {
-      if (!s.text) continue;
-      const savedSentence = await Sentence.create({
-        fileId, // link sentences to this upload
-        text: s.text,
+      await Sentence.create({
+        batchId,
+        S_ID: s.S_ID,
+        SourceSentence: s.text,
       });
-      sentenceIdMap[s.sentenceNumber] = savedSentence._id;
     }
 
-    // 3️⃣ Ensure translators exist
-    const translators = [];
-    for (let i = 0; i < 3; i++) {
-      const code = `T0${i + 1}`;
-      let translator = await Translator.findOne({ code });
-      if (!translator) {
-        translator = await Translator.create({
-          code,
-          name: `Translator ${code}`,
-        });
+    // 3️⃣ Process translation files
+    let translatorCounter = 0;
+
+    for (const file of translationFiles) {
+      const translatedSentences = await parseXML(file.path);
+
+      // ❌ Reject files that do not align structurally
+      if (translatedSentences.length !== englishSentences.length) {
+        console.warn(
+          `Skipping ${file.originalname}: sentence count mismatch`
+        );
+        continue;
       }
-      translators.push(translator);
-    }
 
-    // 4️⃣ Parse and insert Hindi translations
-    for (let i = 0; i < translationFiles.length; i++) {
-      const translator = translators[i];
-      const hindiSentences = await parseXMLFile(translationFiles[i].path);
+      // Create a translator dynamically
+      translatorCounter++;
+      const T_ID = `T${translatorCounter}`;
 
-      for (const s of hindiSentences) {
-        if (!s.text) continue;
-        const sentenceObjectId = sentenceIdMap[s.sentenceNumber];
-        if (!sentenceObjectId) continue;
+      await Translator.create({
+        T_ID,
+        TName: `Translator ${translatorCounter}`,
+      });
 
+      // Store translations
+      for (const s of translatedSentences) {
         await Translation.create({
-          fileId, // link translations to this upload
-          SID: sentenceObjectId,
-          TID: translator._id,
-          translatedText: s.text,
+          batchId,
+          S_ID: s.S_ID,
+          T_ID,
+          SuperId: "SUP001",
+          Indian_Translation: s.text,
         });
       }
     }
 
-    // ✅ Send fileId back to frontend
     res.json({
-      message: "✅ Files uploaded and saved successfully",
-      fileId,
+      message: "Upload parsed successfully",
+      batchId,
+      translatorsProcessed: translatorCounter,
     });
   } catch (error) {
     console.error("❌ Upload error:", error);
-    return res.status(500).json({
+    res.status(500).json({
       message: "Server error",
       error: error.message,
     });
@@ -101,29 +86,3 @@ const uploadFiles = async (req, res) => {
 };
 
 module.exports = { uploadFiles };
-
-
-
-
-// const mongoose = require("mongoose");
-
-// const uploadSchema = new mongoose.Schema({
-//   files: [String],   // xml/json paths
-//   parsedSentences: [
-//     {
-//       text: String,
-//       translations: [
-//         {
-//           translatedText: String,
-//           translator: String
-//         }
-//       ]
-//     }
-//   ],
-//   createdAt: {
-//     type: Date,
-//     default: Date.now,
-//   },
-// });
-
-// module.exports = mongoose.model("Upload", uploadSchema);

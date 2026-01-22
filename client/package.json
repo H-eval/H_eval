@@ -5,7 +5,7 @@
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@testing-library/dom": "^10.4.1",
-    "axios": "^1.11.0",
+    "axios": "^1.13.2",
     "bootstrap": "^5.3.8",
     "boxicons": "^2.1.4",
     "cookie": "^1.0.2",
@@ -19,6 +19,7 @@
     "react-interactive": "^1.1.2",
     "react-router-dom": "^7.7.1",
     "react-scripts": "5.0.1",
+    "recharts": "^3.6.0",
     "scheduler": "^0.27.0",
     "set-cookie-parser": "^2.7.2",
     "styled-components": "^6.1.19",
