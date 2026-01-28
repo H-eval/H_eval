@@ -1,12 +1,9 @@
- // controllers/rankController.js
+// controllers/rankController.js
 const Rank = require("../models/Rank");
 
 exports.submitOrUpdateRank = async (req, res) => {
   try {
-    // 🔑 userId comes from auth middleware (JWT)
-    const userId = req.userId;
-
-    // 📦 request body
+    const userId = req.userId; // from auth middleware
     const { SID, TID, Criterions } = req.body;
 
     console.log("📥 Rank request:", {
@@ -16,30 +13,29 @@ exports.submitOrUpdateRank = async (req, res) => {
       criterionsCount: Criterions?.length,
     });
 
-    // ❌ Validation
     if (!SID || !TID || !userId) {
       return res.status(400).json({
         success: false,
-        message: "SID, TID, UserId required",
+        message: "SID, TID, userId required",
       });
     }
 
-    // 🔄 Update if exists, else create
     const rank = await Rank.findOneAndUpdate(
       {
         TID: TID,
-        userId: userId, // ✅ FIXED
+        userId: userId,
       },
       {
         SID: SID,
         TID: TID,
-        userId: userId, // ✅ FIXED
+        userId: userId,
         Criterions: Criterions,
       },
       {
         new: true,
         upsert: true,
         setDefaultsOnInsert: true,
+        strict: true,
       }
     );
 
