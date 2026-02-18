@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const rankRoutes = require('./routes/RankRoutes');
 const corellRoutes = require('./routes/corell');
+const autoEvaluationRoutes = require("./routes/autoEvaluationRoutes");
 require("dotenv").config();
 
 const app = express();
@@ -20,6 +21,7 @@ app.use("/api", require("./routes/translationRoutes"));
 app.use("/api/nlp", require("./routes/nlproutes"));
 app.use('/api/ranks', rankRoutes);
 app.use("/api", corellRoutes);
+app.use("/api/auto-eval", autoEvaluationRoutes);
 
 // test route
 app.get("/", (req, res) => {

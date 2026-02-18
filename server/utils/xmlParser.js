@@ -9,9 +9,11 @@ const parseXML = async (filePath) => {
     json?.["EILMT-Consortia"]?.body?.[0]?.p?.[0]?.segment?.[0]?.sentence || [];
 
   return sentences.map((s, index) => ({
-    S_ID: Number(s.$?.sentencenumber || index + 1),
-    text: typeof s === "string" ? s.trim() : s._?.trim(),
-  }));
+    S_ID: Number(s?.$?.sentencenumber || index + 1),
+    text: typeof s === "string"
+      ? s.trim()
+      : (s?._ || "").trim(),
+  })).filter(s => s.text.length > 0);
 };
 
 module.exports = parseXML;

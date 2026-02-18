@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const { getCorrelationMetrics } = require("../controllers/corell");
 
-router.get("/correlation/:translationId", getCorrelationMetrics);
+const { getCorrelation } = require("../controllers/corell");
+
+// define route
+router.get("/correlation/:translationId", getCorrelation);
 
 module.exports = router;
