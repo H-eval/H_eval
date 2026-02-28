@@ -6,6 +6,7 @@ const { uploadFiles } = require("../controllers/uploadController");
 router.post(
   "/upload",
   upload.fields([
+    { name: "reference", maxCount: 1 },
     { name: "english", maxCount: 1 },
     { name: "translations", maxCount: 10 },
   ]),

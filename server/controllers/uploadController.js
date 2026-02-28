@@ -13,25 +13,43 @@ const uploadFiles = async (req, res) => {
   session.startTransaction();
 
   try {
+    const referenceFile = req.files?.reference?.[0];
     const englishFile = req.files?.english?.[0];
     const translationFiles = req.files?.translations || [];
 
-    if (!englishFile || translationFiles.length === 0) {
+    if (!referenceFile || !englishFile || translationFiles.length === 0) {
       return res.status(400).json({
-        message: "English file and at least one translation file required",
+        message: "Reference, English and at least one translation file required",
       });
     }
 
     const batchId = uuidv4();
 
-    // 1️⃣ Parse English file
+    // ✅ Parse Reference
+    const referenceSentences = await parseFile(referenceFile.path);
+
+    if (!referenceSentences.length) {
+      throw new Error("Reference file contains no sentences");
+    }
+
+    // ✅ Parse English
     const englishSentences = await parseFile(englishFile.path);
 
     if (!englishSentences.length) {
       throw new Error("English file contains no sentences");
     }
 
-    // 2️⃣ Insert English sentences (bulk)
+    // ✅ Alignment check (Reference vs English)
+    if (
+      referenceSentences.length !== englishSentences.length ||
+      !referenceSentences.every(
+        (s, index) => s.S_ID === englishSentences[index].S_ID
+      )
+    ) {
+      throw new Error("Reference and English files are structurally misaligned");
+    }
+
+    // Insert English sentences
     const sentenceDocs = englishSentences.map((s) => ({
       batchId,
       S_ID: s.S_ID,
@@ -42,20 +60,16 @@ const uploadFiles = async (req, res) => {
 
     let translatorCounter = 0;
 
-    // 3️⃣ Process translations
     for (const file of translationFiles) {
       const translatedSentences = await parseFile(file.path);
 
-      // 🔎 Strict alignment check by S_ID
       if (
         translatedSentences.length !== englishSentences.length ||
         !translatedSentences.every(
           (s, index) => s.S_ID === englishSentences[index].S_ID
         )
       ) {
-        console.warn(
-          `Skipping ${file.originalname}: structural mismatch`
-        );
+        console.warn(`Skipping ${file.originalname}: structural mismatch`);
         continue;
       }
 
@@ -63,12 +77,7 @@ const uploadFiles = async (req, res) => {
       const T_ID = `T${translatorCounter}`;
 
       await Translator.create(
-        [
-          {
-            T_ID,
-            TName: `Translator ${translatorCounter}`,
-          },
-        ],
+        [{ T_ID, TName: `Translator ${translatorCounter}` }],
         { session }
       );
 
@@ -83,24 +92,18 @@ const uploadFiles = async (req, res) => {
       await Translation.insertMany(translationDocs, { session });
     }
 
-    // Commit transaction
     await session.commitTransaction();
     session.endSession();
 
-    // 4️⃣ Run auto evaluation (after commit)
-    try {
-      await runAutoEvaluation(batchId);
-      console.log("Auto evaluation completed.");
-    } catch (err) {
-      console.error("Auto evaluation failed:", err.message);
-    }
+    await runAutoEvaluation(batchId);
 
-    // 5️⃣ Delete uploaded files
+    // ✅ Cleanup all files
     try {
+      fs.unlinkSync(referenceFile.path);
       fs.unlinkSync(englishFile.path);
-      translationFiles.forEach((file) => {
-        fs.unlinkSync(file.path);
-      });
+      translationFiles.forEach((file) =>
+        fs.unlinkSync(file.path)
+      );
     } catch (err) {
       console.warn("File cleanup failed:", err.message);
     }
