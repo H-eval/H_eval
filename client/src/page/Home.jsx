@@ -1,5 +1,5 @@
  
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
  
 import { useNavigate } from "react-router-dom";
 
@@ -17,19 +17,16 @@ export default function Home({onGoToEvaluation}) {
 
 
   const navigate = useNavigate();
-  function handleLogout() {
-  // // 1️⃣ Remove token
-  // localStorage.removeItem("token");
+  
+  // 🔗 Test Backend Connection
+  useEffect(() => {
+    fetch("http://localhost:5000")
+      .then(res => res.text())
+      .then(data => console.log("✅ Backend Connected:", data))
+      .catch(err => console.log("❌ Backend Error:", err));
+  }, []);
 
-  // // 2️⃣ (Optional) Inform backend
-  // fetch("http://localhost:5000/api/logout", {
-  //   method: "POST",
-  //   headers: {
-  //     Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //   },
-  // }).catch(() => {
-  //   // ignore error if backend logout fails
-  // });
+  function handleLogout() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
   // 3️⃣ Redirect to login page
@@ -43,47 +40,81 @@ export default function Home({onGoToEvaluation}) {
   };
   const title = "Upload Your Data";
 
-   const [files, setFiles] = useState([]);
+  const [referenceFile, setReferenceFile] = useState(null);
+  const [englishFile, setEnglishFile] = useState(null);
+  const [translationFiles, setTranslationFiles] = useState([]);
+  const [errors, setErrors] = useState({});
 const [uploading, setUploading] = useState(false);
 const [uploadVisible, setUploadVisible] = useState(false);
 
 
-function handleFileSelect(selectedFiles) {
-  if (selectedFiles.length !== 4) {
-    alert("Please select exactly 4 files (1 English + 3 Hindi)");
+const allowedExtensions = ["xml", "json", "txt"];
+
+function validateFile(file) {
+  const ext = (file.name || "").split(".").pop().toLowerCase();
+  return allowedExtensions.includes(ext);
+}
+
+function handleReferenceUpload(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (!validateFile(file)) {
+    setErrors(prev => ({ ...prev, reference: "Only xml, json, txt allowed." }));
     return;
   }
+  setReferenceFile(file);
+  setErrors(prev => ({ ...prev, reference: null }));
+}
 
-  setFiles([...selectedFiles]);
+function handleEnglishUpload(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (!validateFile(file)) {
+    setErrors(prev => ({ ...prev, english: "Only xml, json, txt allowed." }));
+    return;
+  }
+  setEnglishFile(file);
+  setErrors(prev => ({ ...prev, english: null }));
+}
+
+function handleTranslationUpload(e) {
+  const selected = Array.from(e.target.files || []);
+  const validFiles = selected.filter(validateFile);
+  const invalidFiles = selected.filter(f => !validateFile(f));
+  if (invalidFiles.length > 0) {
+    setErrors(prev => ({
+      ...prev,
+      translation: "Some files were rejected (only xml/json/txt allowed)."
+    }));
+  } else {
+    setErrors(prev => ({ ...prev, translation: null }));
+  }
+  setTranslationFiles(validFiles);
 }
 
 
 async function handleUploadClick() {
   if (uploading) return;
 
-  if (files.length !== 4) {
-    alert("Please select 4 files first");
+  if (!referenceFile) {
+    alert("Reference file is required.");
     return;
   }
 
-      const englishFile = files.find(file =>
-      file.name.toLowerCase().includes("_en")
-    );
+  if (!englishFile) {
+    alert("English file is required.");
+    return;
+  }
 
-    const translationFiles = files.filter(file =>
-      file.name.toLowerCase().includes("_hi")
-    );
+  if (translationFiles.length === 0) {
+    alert("At least one translation file is required.");
+    return;
+  }
 
-    if (!englishFile || translationFiles.length !== 3) {
-      alert("Must upload 1 English (_En.xml) and 3 Hindi (_Hi_*.xml) files");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("english", englishFile);
-    translationFiles.forEach(file =>
-      formData.append("translations", file)
-    );
+  const formData = new FormData();
+  formData.append("reference", referenceFile);
+  formData.append("english", englishFile);
+  translationFiles.forEach(file => formData.append("translations", file));
 
   
     // 🔍 DEBUG: see exactly what is being sent
@@ -110,7 +141,9 @@ async function handleUploadClick() {
     const data = await res.json();
 
     console.log("Upload response RAW:", data);
-    setFiles([]); 
+    setReferenceFile(null);
+    setEnglishFile(null);
+    setTranslationFiles([]);
     setUploadVisible(true);
 
     navigate("/lineviewer");
@@ -134,35 +167,14 @@ async function handleUploadClick() {
 
  
   return (
-    // <div className="min-h-screen bg-gradient-to-b from-[#0B0B1A] to-[#101020] text-white font-inter overflow-x-hidden">
-//    <div className="relative min-h-screen bg-black text-white font-inter overflow-x-hidden">
+    
 
       <div className="relative min-h-screen bg-black text-white font-inter overflow-x-hidden">
-    {/* 🔦 FULLSCREEN LIGHT RAYS BACKGROUND */}
-    {/* <LightRays
-      raysOrigin="top-center"
-      raysColor="#00ffff"
-      raysSpeed={1.5}
-      followMouse={true}
-      mouseInfluence={0.2}
-      className="absolute inset-0 pointer-events-none"
-    /> */}
+    
     
 
     <div className="absolute inset-0 pointer-events-none">
-       {/* <LightRays 
-       raysOrigin="top-center"
-        raysColor="#00ffff" 
-        raysSpeed={1.5} 
-        lightSpread={0.8} 
-        rayLength={1.2}
-         followMouse={true} 
-         mouseInfluence={0.1}
-          noiseAmount={0.1}
-           distortion={0.05} 
-           className="w-full h-full" 
-           /> */}
-
+   
            <LightRays
       raysOrigin="top-center"
       raysColor="#ebf3f3ff"
@@ -176,9 +188,7 @@ async function handleUploadClick() {
       {/* NAVBAR */}
       <nav className="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
         <div className="flex items-center space-x-2">
-          {/* <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold">
-            P
-          </div> */}
+        
           <span className="text-lg font-semibold">TATVA</span>
         </div>
 
@@ -335,112 +345,32 @@ async function handleUploadClick() {
   </div>
 </section>
 
-
-
-        {/* UPLOAD SECTION */}
-        
-
-      {/* <section id="upload" className="py-12">
-
-  <input
-  type="file"
-  accept=".xml,.json"
-  multiple
-  hidden
-  id="multi-upload"
-  onChange={(e) => handleFileSelect(e.target.files)}
-/>
- 
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="text-center mb-8">
-          <h2 id="upload-title" className="text-3xl font-bold mb-2 text-white">
-
-            {title}
-          </h2>
-          <p className="text-lg text-gray-600">Get started by uploading your translation files</p>
-        </div>
-
-        <div
-          className="upload-zone rounded-2xl p-8 text-center cursor-pointer border border-black-200 shadow-sm"
-          onClick={() => document.getElementById("multi-upload").click()}
-
-          role="button"
-          tabIndex={0}
-         onKeyDown={(e) => {
-  if (e.key === "Enter" || e.key === " ")
-    document.getElementById("multi-upload").click();
-}}
-
-          //aria-label="Upload files (click or press Enter)"
-        >
-          <div className="space-y-6">
-            <div className="w-14 h-14 bg-gradient-to-r from-indigo-500 to-teal-400 rounded-full flex items-center justify-center mx-auto">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-              </svg>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-semibold mb-1 text-white">Drop files here or click to browse</h3>
-              <p className="text-gray-600">Supports .xml and .json files up to 50MB</p>
-            </div>
-
-            <div className="flex justify-center space-x-3">
-              <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">.XML</span>
-              <span className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-medium">.JSON</span>
-            </div>
-
-            <div>
-              <button
-                type="button"
-                 onClick={handleUploadClick}
-
-                className="mt-2 inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500"
-              >
-                {uploading ? "Uploading..." : "Upload"}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {uploadVisible && (
-          <div id="upload-success" className="mt-4 p-3 bg-transparent border border-green-200 rounded-lg">
-
-            <div className="flex items-center space-x-3">
-              <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-              </div>
-              <span className="text-green-800 font-medium">File uploaded successfully!</span>
-              <button
-                className="ml-auto text-green-600 hover:text-green-800"
-                onClick={() => {
-                  if (typeof onGoToEvaluation === "function") onGoToEvaluation();
-                }}
-              >
-                Go to evaluation →
-              </button>
-            </div>
-          </div>
-        )}
-
-        <p className="text-center text-sm text-gray-500 mt-6">
-          After upload, the site will navigate to the evaluation configuration page
-        </p>
-      </div>
-    </section> */}
-
     {/* ================= UPLOAD SECTION ================= */}
 <section id="upload" className="py-12">
-  {/* Hidden input (multiple files) */}
+  {/* Hidden inputs (separate) */}
   <input
     type="file"
-    accept=".xml,.json"
+    accept=".xml,.json,.txt"
+    hidden
+    id="reference-input"
+    onChange={handleReferenceUpload}
+  />
+
+  <input
+    type="file"
+    accept=".xml,.json,.txt"
+    hidden
+    id="english-input"
+    onChange={handleEnglishUpload}
+  />
+
+  <input
+    type="file"
+    accept=".xml,.json,.txt"
     multiple
     hidden
-    id="multi-upload"
-    onChange={(e) => handleFileSelect(e.target.files)}
+    id="translation-input"
+    onChange={handleTranslationUpload}
   />
 
   <div className="max-w-4xl mx-auto px-6">
@@ -449,42 +379,134 @@ async function handleUploadClick() {
         {title}
       </h2>
       <p className="text-lg text-gray-600">
-        Upload exactly 4 files 
+        Upload 1 English file and multiple translation files
       </p>
     </div>
 
-    {/* Upload Zone (ONLY opens file picker) */}
-    <div
-      className="upload-zone rounded-2xl p-8 text-center cursor-pointer border border-black-200 shadow-sm"
-      onClick={() => document.getElementById("multi-upload").click()}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ")
-          document.getElementById("multi-upload").click();
-      }}
-    >
-      <div className="space-y-6">
-        <div className="w-14 h-14 bg-gradient-to-r from-indigo-500 to-teal-400 rounded-full flex items-center justify-center mx-auto">
-          ⬆️
-        </div>
+    {/* 3 Column Upload Layout */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        <div>
-          <h3 className="text-xl font-semibold mb-1 text-white">
-            Click to select files
+      {/* Column 1 – Reference File */}
+      <div
+        className="rounded-2xl p-6 text-center cursor-pointer border border-gray-800 bg-[#111] hover:border-indigo-500 transition"
+        onClick={() => document.getElementById("reference-input").click()}
+        role="button"
+        aria-label="Upload reference file"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ")
+            document.getElementById("reference-input").click();
+        }}
+      >
+        <div className="space-y-4">
+          <div className="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center mx-auto text-lg">
+            📄
+          </div>
+          <h3 className="text-lg font-semibold text-white">
+            Reference File
           </h3>
-          <p className="text-gray-600">
-            XML / JSON • Select all 4 files together
-          </p>
-        </div>
 
-        {files.length > 0 && (
-          <p className="text-green-400">
-            {files.length} files selected
-          </p>
-        )}
+          {referenceFile ? (
+            <div className="mt-4 text-sm text-green-400">
+              <p>{referenceFile.name}</p>
+              <p>{(referenceFile.size / 1024).toFixed(1)} KB</p>
+              <p className="text-gray-400 mt-1">Click to replace</p>
+            </div>
+          ) : (
+            <p className="text-gray-400 text-sm mt-2">Upload xml / json / txt</p>
+          )}
+
+          {errors.reference && (
+            <p id="reference-error" className="text-red-400 mt-2 text-sm">
+              {errors.reference}
+            </p>
+          )}
+        </div>
       </div>
+
+      {/* Column 2 – English File */}
+      <div
+        className="rounded-2xl p-6 text-center cursor-pointer border border-gray-800 bg-[#111] hover:border-emerald-500 transition"
+        onClick={() => document.getElementById("english-input").click()}
+        role="button"
+        aria-label="Upload English file"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ")
+            document.getElementById("english-input").click();
+        }}
+      >
+        <div className="space-y-4">
+          <div className="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center mx-auto text-lg">
+            🇬🇧
+          </div>
+          <h3 className="text-lg font-semibold text-white">English File</h3>
+
+          {englishFile ? (
+            <div className="mt-4 text-sm text-green-400">
+              <p>{englishFile.name}</p>
+              <p>{(englishFile.size / 1024).toFixed(1)} KB</p>
+              <p className="text-gray-400 mt-1">Click to replace</p>
+            </div>
+          ) : (
+            <p className="text-gray-400 text-sm mt-2">Required (_En.xml)</p>
+          )}
+
+          {errors.english && (
+            <p id="english-error" className="text-red-400 mt-2 text-sm">
+              {errors.english}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Column 3 – Translation Files */}
+      <div
+        className="rounded-2xl p-6 text-center cursor-pointer border border-gray-800 bg-[#111] hover:border-purple-500 transition"
+        onClick={() => document.getElementById("translation-input").click()}
+        role="button"
+        aria-label="Upload translation files"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ")
+            document.getElementById("translation-input").click();
+        }}
+      >
+        <div className="space-y-4">
+          <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mx-auto text-lg">
+            🌍
+          </div>
+          <h3 className="text-lg font-semibold text-white">Translation Files</h3>
+
+          {translationFiles.length > 0 ? (
+            <div className="mt-4 text-sm text-green-400">
+              {translationFiles.map((file, index) => (
+                <p key={index}>
+                  {file.name} — {(file.size / 1024).toFixed(1)} KB
+                </p>
+              ))}
+              <p className="text-gray-400 mt-1">Click to replace files</p>
+            </div>
+          ) : (
+            <p className="text-gray-400 text-sm mt-2">Multiple (_Hi_*.xml)</p>
+          )}
+
+          {errors.translation && (
+            <p id="translation-error" className="text-red-400 mt-2 text-sm">
+              {errors.translation}
+            </p>
+          )}
+        </div>
+      </div>
+
     </div>
+
+    {/* Selected File Count */}
+    {((referenceFile ? 1 : 0) + (englishFile ? 1 : 0) + translationFiles.length) > 0 && (
+      <p className="text-center text-green-400 mt-6">
+        {(referenceFile ? 1 : 0) + (englishFile ? 1 : 0) + translationFiles.length} file(s) selected
+      </p>
+    )}
 
     {/* Submit Button */}
     <div className="text-center mt-6">
