@@ -14,7 +14,7 @@ import LineViewer from "./page/LineViewer";
 import EvaluationPage from "./page/EvaluationPage";
 import ProtectedRoute from "./page/ProtectedRoute";
 import Corell from "./page/corell";
-
+import History from "./page/History";
 
 function AppRoutes() {
   const [showSplash, setShowSplash] = useState(true);
@@ -36,6 +36,7 @@ function AppRoutes() {
 
       {/* Core pages */}
       <Route path="/login" element={<Login />} />
+      
       <Route
   path="/home"
   element={
@@ -44,6 +45,16 @@ function AppRoutes() {
     </ProtectedRoute>
   }
 />
+<Route
+  path="/home"
+  element={
+    <ProtectedRoute>
+      <Home />
+    </ProtectedRoute>
+  }
+/>
+
+<Route path="/history" element={<History />} />
 
       {/* Translation and Line Viewer pages */}
       {/* <Route path="/translate/:fileId" element={<TranslatePage />} /> */}

@@ -9,6 +9,7 @@ import CurvedCarousel from "./CurvedCarousel";
 import LightRays from "./LightRays";
 import ElectricBorder from "./ElectricBorder";
 import TextType from "./TextType";
+import { Link } from "react-router-dom";
 
 
 
@@ -196,6 +197,11 @@ async function handleUploadClick() {
   <li>
     <a href="#upload" className="hover:text-white cursor-pointer">Upload</a>
   </li>
+    <li>
+  <Link to="/history" className="hover:text-white cursor-pointer">
+    History
+  </Link>
+</li>
 </ul>
 
 
