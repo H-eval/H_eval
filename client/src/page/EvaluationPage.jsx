@@ -3,7 +3,7 @@ import { ChevronLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const EvaluationPage = () => {
-  const { sentenceId, translationId,userId} = useParams();
+  const { sentenceId, translationId} = useParams();
   const navigate = useNavigate();
 
 
@@ -131,8 +131,10 @@ const EvaluationPage = () => {
     console.log('✅ Evaluation submitted successfully:', data);
     setSubmitted(true);
 
-    // Optional: navigate to LineViewer after submit
-    // navigate(`/lineviewer/${sentenceId}/${userId}`);
+      // ⬇️ navigate to correlation page after short delay
+        setTimeout(() => {
+          navigate(`/corell/${translationId}`);
+        }, 800)
 
     setTimeout(() => {
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });

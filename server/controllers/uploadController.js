@@ -7,6 +7,7 @@ const Translator = require("../models/Translator");
 const Translation = require("../models/Translation");
 const parseFile = require("../utils/fileParser");
 const runAutoEvaluation = require("../scripts/autoEvaluation");
+const Reference = require("../models/Reference");
 
 const uploadFiles = async (req, res) => {
   const session = await mongoose.startSession();
@@ -48,6 +49,14 @@ const uploadFiles = async (req, res) => {
     ) {
       throw new Error("Reference and English files are structurally misaligned");
     }
+    
+    const referenceDocs = referenceSentences.map((s) => ({
+      batchId,
+      S_ID: s.S_ID,
+      ReferenceSentence: s.text
+    }));
+
+    await Reference.insertMany(referenceDocs, { session });
 
     // Insert English sentences
     const sentenceDocs = englishSentences.map((s) => ({
@@ -95,7 +104,13 @@ const uploadFiles = async (req, res) => {
     await session.commitTransaction();
     session.endSession();
 
-    await runAutoEvaluation(batchId);
+    setImmediate(() => {
+      runAutoEvaluation(batchId)
+        .then(() => console.log("✅ Auto evaluation completed"))
+        .catch((err) =>
+          console.error("❌ Auto evaluation failed:", err)
+      );
+    });
 
     // ✅ Cleanup all files
     try {

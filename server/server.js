@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const rankRoutes = require('./routes/RankRoutes');
 const corellRoutes = require('./routes/corell');
-const autoEvaluationRoutes = require("./routes/autoEvaluationRoutes");
+const autoEvaluationRoutes = require("./routes/autoEvalRoutes");
 require("dotenv").config();
 
 const app = express();

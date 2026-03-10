@@ -65,7 +65,8 @@ function AppRoutes() {
       <Route path="/evaluate/:sentenceId/:translationId"element={<EvaluationPage />}/>
 
 
-      <Route path="/corell" element={<Corell />} />
+      <Route path="/corell/:translationId" element={<Corell />} />
+
 
     </Routes>
   );
