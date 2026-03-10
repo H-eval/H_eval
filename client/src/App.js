@@ -14,7 +14,8 @@ import LineViewer from "./page/LineViewer";
 import EvaluationPage from "./page/EvaluationPage";
 import ProtectedRoute from "./page/ProtectedRoute";
 import Corell from "./page/corell";
-
+import Profile from "./page/Profile";
+import BatchAnalysis from "./page/BatchAnalysis";
 
 function AppRoutes() {
   const [showSplash, setShowSplash] = useState(true);
@@ -53,9 +54,24 @@ function AppRoutes() {
 
       <Route path="/evaluate/:sentenceId/:translationId"element={<EvaluationPage />}/>
 
-
+      
       <Route path="/corell" element={<Corell />} />
-
+      <Route
+         path="/profile"
+         element={
+          <ProtectedRoute>
+             <Profile />
+          </ProtectedRoute>
+        }
+     />
+       <Route
+  path="/history/:batchId"
+  element={
+    <ProtectedRoute>
+      <BatchAnalysis />
+    </ProtectedRoute>
+  }
+/>
     </Routes>
   );
 }
