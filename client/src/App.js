@@ -14,8 +14,12 @@ import LineViewer from "./page/LineViewer";
 import EvaluationPage from "./page/EvaluationPage";
 import ProtectedRoute from "./page/ProtectedRoute";
 import Corell from "./page/corell";
+<<<<<<< HEAD
 import Profile from "./page/Profile";
 import BatchAnalysis from "./page/BatchAnalysis";
+=======
+import History from "./page/History";
+>>>>>>> a1be30bb2301f9e47fac35a98ec53be93e7ca8ce
 
 function AppRoutes() {
   const [showSplash, setShowSplash] = useState(true);
@@ -37,6 +41,7 @@ function AppRoutes() {
 
       {/* Core pages */}
       <Route path="/login" element={<Login />} />
+      
       <Route
   path="/home"
   element={
@@ -45,6 +50,16 @@ function AppRoutes() {
     </ProtectedRoute>
   }
 />
+<Route
+  path="/home"
+  element={
+    <ProtectedRoute>
+      <Home />
+    </ProtectedRoute>
+  }
+/>
+
+<Route path="/history" element={<History />} />
 
       {/* Translation and Line Viewer pages */}
       {/* <Route path="/translate/:fileId" element={<TranslatePage />} /> */}
@@ -54,6 +69,7 @@ function AppRoutes() {
 
       <Route path="/evaluate/:sentenceId/:translationId"element={<EvaluationPage />}/>
 
+<<<<<<< HEAD
       
       <Route path="/corell" element={<Corell />} />
       <Route
@@ -72,6 +88,12 @@ function AppRoutes() {
     </ProtectedRoute>
   }
 />
+=======
+
+      <Route path="/corell/:translationId" element={<Corell />} />
+
+
+>>>>>>> a1be30bb2301f9e47fac35a98ec53be93e7ca8ce
     </Routes>
   );
 }

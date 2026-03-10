@@ -4,8 +4,12 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const rankRoutes = require('./routes/RankRoutes');
 const corellRoutes = require('./routes/corell');
+<<<<<<< HEAD
 const evaluatorRoutes = require("./routes/evaluatorRoutes");
 const autoEvaluationRoutes = require("./routes/autoEvaluationRoutes");
+=======
+const autoEvaluationRoutes = require("./routes/autoEvalRoutes");
+>>>>>>> a1be30bb2301f9e47fac35a98ec53be93e7ca8ce
 require("dotenv").config();
 
 const app = express();

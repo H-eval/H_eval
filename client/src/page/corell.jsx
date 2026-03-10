@@ -4,8 +4,8 @@ import { ArrowLeft, Sparkles, TrendingUp, TrendingDown, CheckCircle2, AlertTrian
 
 const Corell = ({ superId: propSuperId, onBack: propOnBack }) => {
   const navigate = useNavigate();
-  const { superId: paramSuperId } = useParams();
-  const superId = propSuperId || paramSuperId || 'demo_001';
+  const { tid } = useParams();
+
   
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,115 +19,94 @@ const Corell = ({ superId: propSuperId, onBack: propOnBack }) => {
       navigate(-1);
     }
   };
-
   useEffect(() => {
+  if (tid) {
     fetchCorrelationData();
-  }, [superId]);
+  }
+}, [tid]);
 
-  const fetchCorrelationData = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/correlation/${superId}`);
-      
-      if (!response.ok) throw new Error('Failed to fetch correlation data');
-      
-      const result = await response.json();
-      
-      // Transform backend data to match UI format
-      if (result.success && result.data) {
-        const backendData = result.data;
-        
-        // Calculate composite score (average of all metrics)
-        const composite = ((backendData.bleu + backendData.meteor + backendData.ter) / 3).toFixed(1);
-        
-        // Convert metrics to percentage (assuming 0-4 scale, convert to 0-100%)
-        const bleuPercent = ((backendData.bleu / 4) * 100).toFixed(1);
-        const meteorPercent = ((backendData.meteor / 4) * 100).toFixed(1);
-        const terPercent = ((backendData.ter / 4) * 100).toFixed(1);
-        const compositePercent = ((parseFloat(composite) / 4) * 100).toFixed(1);
-        
-        // Calculate comparison metrics
-        const difference = backendData.human - parseFloat(composite);
-        const absDifference = Math.abs(difference);
-        
-        // Determine agreement level
-        let agreement = 'High Agreement';
-        if (absDifference > 1.0) {
-          agreement = difference > 0 ? 'Underestimate' : 'Overestimate';
-        } else if (absDifference > 0.5) {
-          agreement = 'High Agreement';
-        }
-        
-        // Transform to expected format
-        const transformedData = {
-          superId: superId,
-          humanEvaluation: {
-            score: backendData.human,
-            criteria: { 
-              accuracy: backendData.human, 
-              fluency: backendData.human, 
-              grammar: backendData.human, 
-              terminology: backendData.human, 
-              style: backendData.human 
-            }
-          },
-          automaticEvaluation: {
-            score: parseFloat(composite),
-            metrics: { 
-              bleu: parseFloat(bleuPercent), 
-              fscore: parseFloat(meteorPercent), 
-              editScore: parseFloat(terPercent), 
-              composite: parseFloat(compositePercent) 
-            }
-          },
-          comparison: { 
-            difference: parseFloat(difference.toFixed(2)), 
-            absDifference: parseFloat(absDifference.toFixed(2)), 
-            agreement: agreement 
-          },
-         sentences: {
-  source: result.sentences.source,
-  mtOutput: result.sentences.mtOutput,
-  reference: result.sentences.reference
-}
-,
-          metadata: { 
-            evaluatedAt: new Date().toISOString(), 
-            evaluator: 'system' 
-          }
-        };
-        
-        setData(transformedData);
-      } else {
-        throw new Error('Invalid response format');
+const fetchCorrelationData = async () => {
+  try {
+    setLoading(true);
+
+    const response = await fetch(
+      `http://localhost:5000/api/correlation/${tid}`
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch correlation data");
+    }
+
+    const result = await response.json();
+
+    if (result.success && result.data) {
+      const backendData = result.data;
+
+      // Composite score (0–4 scale)
+      const composite =
+        (backendData.bleu +
+          backendData.meteor +
+          backendData.ter) /
+        3;
+
+      // Convert to percentage (assuming 0–4 scale)
+      const bleuPercent = (backendData.bleu / 4) * 100;
+      const meteorPercent = (backendData.meteor / 4) * 100;
+      const terPercent = (backendData.ter / 4) * 100;
+      const compositePercent = (composite / 4) * 100;
+
+      const difference = backendData.human - composite;
+      const absDifference = Math.abs(difference);
+
+      let agreement = "High Agreement";
+      if (absDifference > 1.0) {
+        agreement = difference > 0 ? "Underestimate" : "Overestimate";
       }
-      
-      setError(null);
-    } catch (err) {
-      setError(err.message);
-      // Fallback to demo data
-      setData({
-        superId: superId || 'demo_001',
+
+      const transformedData = {
+        superId: tid,
         humanEvaluation: {
-          score: 3.45,
-          criteria: { accuracy: 4.0, fluency: 3.5, grammar: 3.8, terminology: 3.2, style: 3.4 }
+          score: backendData.human,
+          criteria: backendData.humanCriteria || {}
         },
         automaticEvaluation: {
-          score: 3.12,
-          metrics: { bleu: 62.4, fscore: 78.5, editScore: 82.1, composite: 74.3 }
+          score: parseFloat(composite.toFixed(2)),
+          metrics: {
+            bleu: parseFloat(bleuPercent.toFixed(1)),
+            fscore: parseFloat(meteorPercent.toFixed(1)),
+            editScore: parseFloat(terPercent.toFixed(1)),
+            composite: parseFloat(compositePercent.toFixed(1))
+          }
         },
-        comparison: { difference: -0.33, absDifference: 0.33, agreement: 'High Agreement' },
+        comparison: {
+          difference: parseFloat(difference.toFixed(2)),
+          absDifference: parseFloat(absDifference.toFixed(2)),
+          agreement
+        },
         sentences: {
-          source: 'The quick brown fox jumps over the lazy dog.',
-          mtOutput: 'El rápido zorro marrón salta sobre el perro perezoso.',
-          reference: 'El veloz zorro marrón salta sobre el perro perezoso.'
+          source: backendData.sentences?.source || "",
+          mtOutput: backendData.sentences?.mtOutput || "",
+          reference: backendData.sentences?.reference || ""
         },
-        metadata: { evaluatedAt: new Date().toISOString(), evaluator: 'demo_user' }
-      });
-    } finally {
-      setLoading(false);
+        metadata: {
+          evaluatedAt: new Date().toISOString(),
+          evaluator: "system"
+        }
+      };
+
+      setData(transformedData);
+      setError(null);
+    } else {
+      throw new Error("Invalid response format");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const getAgreementConfig = (agreement) => {
     const configs = {
@@ -262,7 +241,7 @@ const Corell = ({ superId: propSuperId, onBack: propOnBack }) => {
                 </p>
               </div>
               <div className="px-6 py-3 bg-cyan-500/20 backdrop-blur-xl rounded-2xl border border-cyan-400/30">
-                <p className="text-cyan-300 text-sm font-mono">{data.superId}</p>
+                <p className="text-cyan-300 text-sm font-mono">{tid}</p>
               </div>
             </div>
           </div>

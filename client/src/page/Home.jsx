@@ -10,6 +10,10 @@ import LightRays from "./LightRays";
 import ElectricBorder from "./ElectricBorder";
 import TextType from "./TextType";
 import { Link } from "react-router-dom";
+<<<<<<< HEAD
+=======
+
+>>>>>>> a1be30bb2301f9e47fac35a98ec53be93e7ca8ce
 
 
 export default function Home({onGoToEvaluation}) {
@@ -206,9 +210,15 @@ async function handleUploadClick() {
   <li>
     <a href="#upload" className="hover:text-white cursor-pointer">Upload</a>
   </li>
+<<<<<<< HEAD
   <li>
   <Link to="/profile" className="hover:text-white cursor-pointer">
     Profile
+=======
+    <li>
+  <Link to="/history" className="hover:text-white cursor-pointer">
+    History
+>>>>>>> a1be30bb2301f9e47fac35a98ec53be93e7ca8ce
   </Link>
 </li>
 </ul>
