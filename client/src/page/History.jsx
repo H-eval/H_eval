@@ -1,10 +1,12 @@
-import React from "react";
+import { useParams } from "react-router-dom";
 
 export default function History() {
+  const { batchId } = useParams();
+
   return (
-    <div className="min-h-screen bg-black text-white p-10">
-      <h1 className="text-3xl font-bold mb-4">History Page</h1>
-      <p>This is the History page of TATVA.</p>
+    <div style={{color:"white"}}>
+      <h1>Batch Analysis</h1>
+      <p>Batch ID: {batchId}</p>
     </div>
   );
 }

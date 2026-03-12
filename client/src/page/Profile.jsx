@@ -199,7 +199,7 @@ const Profile = () => {
   {new Date(item.lastEvaluation).toLocaleDateString()}
 </p>
   <button
-  onClick={() => navigate(`/history/${item.batchId}`)}
+  onClick={() => navigate(`/batch-analysis/${item.batchId}`)}
   className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm font-medium hover:scale-105 transition duration-300"
 >
   View Analysis
