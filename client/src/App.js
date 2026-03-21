@@ -16,7 +16,7 @@ import ProtectedRoute from "./page/ProtectedRoute";
 import Corell from "./page/corell";
 import Profile from "./page/Profile";
 import BatchAnalysis from "./page/BatchAnalysis";
-
+import GraphPage from "./page/GraphPage";
 function AppRoutes() {
   const [showSplash, setShowSplash] = useState(true);
   const navigate = useNavigate();
@@ -56,7 +56,7 @@ function AppRoutes() {
 
       <Route path="/evaluate/:sentenceId/:translationId"element={<EvaluationPage />}/>
 
-
+      <Route path="/analysis/:batchId" element={<GraphPage />} />
       <Route path="/corell/:translationId" element={<Corell />} />
 
 

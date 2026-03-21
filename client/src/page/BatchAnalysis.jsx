@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 const BatchAnalysis = () => {
 
   const { batchId } = useParams();
@@ -10,6 +10,7 @@ const BatchAnalysis = () => {
   lastEvaluation: null,
   criteriaUsed: []
 });
+const navigate = useNavigate();
 const [sentenceData, setSentenceData] = useState([]);
 useEffect(() => {
 
@@ -268,11 +269,12 @@ useEffect(() => {
     Detailed evaluation graphs and correlation analysis are available for this batch.
   </p>
 
-  <button
-    className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium hover:scale-105 transition duration-300 shadow-lg"
-  >
-    View Graph Analysis
-  </button>
+ <button
+  onClick={() => navigate(`/analysis/${batchId}`)}
+  className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium hover:scale-105 transition duration-300 shadow-lg"
+>
+  VIEW GRAPH ANALYSIS
+</button>
 
 </div>
 

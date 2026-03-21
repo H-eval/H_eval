@@ -9,6 +9,8 @@ const evaluatorRoutes = require("./routes/evaluatorRoutes");
 //const autoEvaluationRoutes = require("./routes/autoEvaluationRoutes");
 
 const autoEvaluationRoutes = require("./routes/autoEvalRoutes");
+const historyRoutes = require("./routes/historyRoutes");
+
 
 require("dotenv").config();
 
@@ -31,7 +33,7 @@ app.use('/api/ranks', rankRoutes);
 app.use("/api", corellRoutes);
 app.use("/api/auto-eval", autoEvaluationRoutes);
 app.use("/api/evaluator", evaluatorRoutes);
-
+app.use("/api/history", historyRoutes);
 // test route
 app.get("/", (req, res) => {
   res.send("🚀 Backend API is running");

@@ -9,11 +9,12 @@ const {
   getBatchStats,
   getUserHistory
 } = require("../controllers/evaluatorController");
+
+// ADD THIS ROUTE
+router.get("/stats", authMiddleware, getEvaluatorStats);
+
 router.get("/history", authMiddleware, getUserHistory);
 router.get("/batchStats/:batchId", authMiddleware, getBatchStats);
-router.get(
-  "/sentenceEvaluations/:batchId",
-  authMiddleware,
-  getSentenceEvaluations
-);
+router.get("/sentenceEvaluations/:batchId", authMiddleware, getSentenceEvaluations);
+
 module.exports = router;
