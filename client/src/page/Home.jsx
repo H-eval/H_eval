@@ -147,7 +147,7 @@ async function handleUploadClick() {
     setTranslationFiles([]);
     setUploadVisible(true);
 
-    navigate("/lineviewer");
+    navigate("/translation/0");
 
   } catch (err) {
     alert("Upload failed");
@@ -219,7 +219,7 @@ async function handleUploadClick() {
           
          <button
   onClick={handleLogout}
-  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black rounded-md transition"
+  className="px-4 py-2 bg-blue-500 hover:bg-blue-400 text-black rounded-md transition"
 >
   Logout
 </button>
@@ -235,7 +235,7 @@ async function handleUploadClick() {
           transition={{ duration: 0.8 }}
           className="text-4xl md:text-6xl font-bold mb-4"
         >
-          Human Evaluation for <br />  translation
+          Human Evaluation of <br /> Machine translation System
         </motion.h1>
 
         <motion.p
@@ -392,43 +392,7 @@ async function handleUploadClick() {
     {/* 3 Column Upload Layout */}
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-      {/* Column 1 – Reference File */}
-      <div
-        className="rounded-2xl p-6 text-center cursor-pointer border border-gray-800 bg-[#111] hover:border-indigo-500 transition"
-        onClick={() => document.getElementById("reference-input").click()}
-        role="button"
-        aria-label="Upload reference file"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ")
-            document.getElementById("reference-input").click();
-        }}
-      >
-        <div className="space-y-4">
-          <div className="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center mx-auto text-lg">
-            📄
-          </div>
-          <h3 className="text-lg font-semibold text-white">
-            Reference File
-          </h3>
-
-          {referenceFile ? (
-            <div className="mt-4 text-sm text-green-400">
-              <p>{referenceFile.name}</p>
-              <p>{(referenceFile.size / 1024).toFixed(1)} KB</p>
-              <p className="text-gray-400 mt-1">Click to replace</p>
-            </div>
-          ) : (
-            <p className="text-gray-400 text-sm mt-2">Upload xml / json / txt</p>
-          )}
-
-          {errors.reference && (
-            <p id="reference-error" className="text-red-400 mt-2 text-sm">
-              {errors.reference}
-            </p>
-          )}
-        </div>
-      </div>
+ 
 
       {/* Column 2 – English File */}
       <div
@@ -505,6 +469,44 @@ async function handleUploadClick() {
         </div>
       </div>
 
+            {/* Column 1 – Reference File */}
+      <div
+        className="rounded-2xl p-6 text-center cursor-pointer border border-gray-800 bg-[#111] hover:border-indigo-500 transition"
+        onClick={() => document.getElementById("reference-input").click()}
+        role="button"
+        aria-label="Upload reference file"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ")
+            document.getElementById("reference-input").click();
+        }}
+      >
+        <div className="space-y-4">
+          <div className="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center mx-auto text-lg">
+            📄
+          </div>
+          <h3 className="text-lg font-semibold text-white">
+            Reference File
+          </h3>
+
+          {referenceFile ? (
+            <div className="mt-4 text-sm text-green-400">
+              <p>{referenceFile.name}</p>
+              <p>{(referenceFile.size / 1024).toFixed(1)} KB</p>
+              <p className="text-gray-400 mt-1">Click to replace</p>
+            </div>
+          ) : (
+            <p className="text-gray-400 text-sm mt-2">Upload xml / json / txt</p>
+          )}
+
+          {errors.reference && (
+            <p id="reference-error" className="text-red-400 mt-2 text-sm">
+              {errors.reference}
+            </p>
+          )}
+        </div>
+      </div>
+
     </div>
 
     {/* Selected File Count */}
@@ -572,7 +574,7 @@ async function handleUploadClick() {
               <div className="space-y-3">
                 <a href="#" className="block text-gray-300 hover:text-white">Evaluation Methodology</a>
                 <a href="#" className="block text-gray-300 hover:text-white">Scoring Guidelines</a>
-                <a href="#https://github.com/H-eval/H_eval" className="block text-gray-300 hover:text-white">GitHub Repository</a>
+                <a href="#https://github.com/H-eval/H_eval" className="block text-gray-300 hover:text-white"></a>
                 {/* <a href="#" className="block text-gray-300 hover:text-white">License</a> */}
               </div>
             </div>

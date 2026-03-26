@@ -74,17 +74,16 @@ export default function Stepper({
         </StepContentWrapper>
         {!isCompleted && (
           <div className={`px-8 pb-8 ${footerClassName}`}>
-            <div  className="mt-10 flex items-center justify-between">
-
+             
                 {/* LEFT GROUP: Previous + Next */}
-                <div className="flex items-center gap-4">
+                <div className="mt-10 flex items-center justify-between">
                 <button
                   onClick={handleBack}
                   disabled={currentStep === 1}
                   className={`duration-300 rounded px-4 py-2 transition ${
                     currentStep === 1
-                      ? 'opacity-40 cursor-not-allowed'
-                      : 'text-neutral-400 hover:text-white'
+                      ? 'opacity-40 cursor-not-allowed bg-blue-400 text-white'
+                      : ' bg-blue-600 text-white hover:bg-blue-700'
                   }`}
                   {...backButtonProps}
                 >
@@ -93,7 +92,7 @@ export default function Stepper({
               
               <button
                 onClick={isLastStep ? handleComplete : handleNext}
-                className="duration-300 flex items-center justify-center rounded-full bg-green-500 py-2 px-5 font-medium tracking-tight text-white transition hover:bg-green-600 active:bg-green-700"
+                className="duration-300 flex items-center justify-center rounded-full bg-blue-500 py-2 px-5 font-medium tracking-tight text-white transition hover:bg-blue-600 active:bg-blue-700"
                 {...nextButtonProps}
               >
                 {isLastStep ? 'Complete' : nextButtonText}
@@ -101,14 +100,14 @@ export default function Stepper({
               </div>
 
               {/* RIGHT GROUP: Evaluate */}
-              <button
+              {/* <button
                 onClick={onEvaluate}
                 className="duration-300 rounded-full bg-green-500 px-5 py-2 font-medium text-white transition hover:bg-green-600 active:bg-green-700"
               >
                 Evaluate
-              </button>
+              </button> */}
             </div>
-          </div>
+         
         )}
       </div>
     </div>

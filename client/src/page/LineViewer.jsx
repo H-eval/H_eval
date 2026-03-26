@@ -4,18 +4,28 @@ import { useParams, useNavigate } from "react-router-dom";
 //import WebName from "../components/WebName";
 import Stepper, { Step } from '../components/Stepper';
 import BackgroundWords from "../componets/BackgroundWords";
+import BackButton from "../components/Button"; 
   
 
 const LineViewer = () => {
   
-
+  const { index } = useParams();
   const [lines, setLines] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] =  useState(Number(index) || 0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [posTags, setPosTags] = useState([]);
   const navigate = useNavigate();
 
+  const goToHome = () => {
+    navigate("/Home");
+  };
+   
+  useEffect(() => {
+    if (index !== undefined) {
+      setCurrentIndex(Number(index));
+    }
+  }, [index]);
 
   // Call Python NLP service for POS tags
   const getPOSTags = async (sentence) => {
@@ -106,14 +116,42 @@ const LineViewer = () => {
    
   return (
   <div className="relative min-h-screen bg-gray-900 text-white flex justify-center items-center p-6 overflow-hidden">
-  
+    {/* 🔥 Back Button Top Left */}
+     {/* 🔥 Back Button Top Left */}
+    <div
+      className="absolute top-6 left-6 z-50 cursor-pointer group"
+      onClick={goToHome}
+    >
+      <div className="
+        w-11 h-11 
+        rounded-full 
+        border-2 border-white 
+        flex items-center justify-center 
+        bg-transparent
+        transition-all duration-200
+        group-hover:bg-white group-hover:border-white
+      ">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-5 h-5 text-white group-hover:text-gray-900 transition-colors duration-200"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2.5}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </div>
+    </div>
+
     <BackgroundWords />
     <div className=" 
                     w-full max-w-11xl 
                     min-h-[75vh] max-h-[85vh] 
                     flex flex-col justify-between">  
     <Stepper
-      initialStep={1}
+      key={index}
+      initialStep={(Number(index) || 0) + 1}
       onStepChange={(step) => {
         setCurrentIndex(step - 1); 
         console.log(step);
@@ -190,8 +228,14 @@ const LineViewer = () => {
                   {/* 🔥 EVALUATE BUTTON */}
                   <button
                     className="mt-2 px-3 py-1 bg-blue-600 rounded hover:bg-blue-700"
-                    onClick={() =>
-                       navigate(`/evaluate/${line.sentenceId || line.S_ID}/${t.T_ID || t._id}`)
+                     onClick={() =>
+                      navigate(`/evaluate/${line.sentenceId}/${t.T_ID || t._id}/${currentIndex}`, {
+                        state: {
+                          translations: line.translations,
+                          sentence: line.text,
+                          currentTranslation: t
+                        }
+                      })
                     }
                   >
                     Evaluate

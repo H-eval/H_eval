@@ -4,7 +4,7 @@ const BatchAnalysis = () => {
 
   const { batchId } = useParams();
   const [stats, setStats] = useState({
-   totalSentences: 0,
+  totalSentences: 0,
   evaluatedSentences: 0,
   averageScore: 0,
   lastEvaluation: null,
@@ -75,17 +75,27 @@ useEffect(() => {
     <div className="max-w-6xl mx-auto px-6">
 
       {/* Page Title */}
-      <div className="mb-20">
-        <h1 className="text-6xl font-extrabold text-green-400 leading-tight">
-          Batch Analysis
-        </h1>
-        {/* <h1 className="text-6xl font-extrabold text-green-400 leading-tight">
-          Analysis
-        </h1> */}
+       <div className="mb-20 flex justify-between items-start">
 
-        <p className="mt-6 text-gray-400 text-lg max-w-2xl">
-          Explore evaluation insights and analytics for this translation batch.
-        </p>
+        {/* Left Side (Title) */}
+        <div>
+          <h1 className="text-6xl font-extrabold text-blue-400 leading-tight">
+            Evalaution Analysis
+          </h1>
+
+          <p className="mt-6 text-gray-400 text-lg max-w-2xl">
+            Explore evaluation insights and analytics for this translation batch.
+          </p>
+        </div>
+
+        {/* Right Side (Back Button) */}
+        <button
+          onClick={() => navigate("/profile")}
+          className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm hover:scale-105 transition"
+        >
+          ⬅ Back
+        </button>
+
       </div>
 
 
@@ -93,7 +103,7 @@ useEffect(() => {
       <div className="bg-white/5 backdrop-blur-xl p-10 rounded-3xl shadow-2xl mb-16">
 
         <h2 className="text-2xl font-semibold text-white mb-8">
-          Batch Information
+          Evaluation Information
         </h2>
 
         <div className="grid md:grid-cols-2 gap-y-6 gap-x-12">
@@ -152,7 +162,10 @@ useEffect(() => {
       style={{
         width: `${
           stats.totalSentences > 0
-            ? (stats.evaluatedSentences / stats.totalSentences) * 100
+            ? Math.max(
+                ((stats.evaluatedSentences / stats.totalSentences) * 100),
+                1
+              ).toFixed(2)
             : 0
         }%`
       }}
@@ -161,7 +174,7 @@ useEffect(() => {
 
   <p className="text-sm text-gray-300">
     {stats.totalSentences > 0
-      ? Math.round((stats.evaluatedSentences / stats.totalSentences) * 100)
+      ? ((stats.evaluatedSentences / stats.totalSentences) * 100).toFixed(1)
       : 0
     }% completed
   </p>
@@ -170,44 +183,6 @@ useEffect(() => {
 
         </div>
          </div>
-{/* Evaluation Details */}
-<h2 className="text-3xl font-bold text-white mt-20 mb-10">
-  Evaluation Details
-</h2>
-
-<div className="bg-white/5 backdrop-blur-xl p-10 rounded-3xl shadow-2xl mb-16">
-
-  <div className="grid md:grid-cols-2 gap-y-6 gap-x-12">
-
-    <div>
-      <p className="text-gray-400 text-sm">Average Score Given</p>
-      <p className="text-lg font-medium text-white">
-        {stats.averageScore}
-      </p>
-    </div>
-
-    <div>
-      <p className="text-gray-400 text-sm">Last Evaluation</p>
-      <p className="text-lg font-medium text-white">
-        {stats.lastEvaluation
-          ? new Date(stats.lastEvaluation).toLocaleDateString()
-          : "N/A"}
-      </p>
-    </div>
-
-    <div>
-      <p className="text-gray-400 text-sm">Evaluation Criteria Used</p>
-      <p className="text-lg font-medium text-white">
-        {stats.criteriaUsed?.length
-          ? stats.criteriaUsed.join(", ")
-          : "Not available"}
-      </p>
-    </div>
-
-  </div>
-
-</div>
-
 {/* Sentence Evaluation Summary */}
 
 <h2 className="text-3xl font-bold text-white mt-20 mb-10">
@@ -216,43 +191,61 @@ useEffect(() => {
 
 <div className="bg-white/5 backdrop-blur-xl p-10 rounded-3xl shadow-2xl">
 
-  <table className="w-full text-left">
+  <table className="w-full text-left border-separate border-spacing-x-4">
 
     <thead className="text-gray-400 border-b border-white/10">
       <tr>
-        <th className="pb-4">Sentence ID</th>
-        <th className="pb-4">Translator</th>
-        <th className="pb-4">Your Score</th>
+        <th className="pb-4 w-[35%]">English Sentence</th>
+        <th className="pb-4 w-[35%]">Translation</th>
+        <th className="pb-4 w-[10%] text-center">Translator</th>
+        <th className="pb-4 w-[10%] text-center">Score</th>
+        <th className="pb-4 w-[10%] text-center">Action</th>
       </tr>
     </thead>
 
-    <tbody>
+     <tbody>
+      {sentenceData.map((item, i) =>
+        item.translations.map((t, j) => (
+          <tr key={`${i}-${j}`} className="border-b border-white/10">
 
-      {sentenceData.length === 0 ? (
-        <tr>
-          <td colSpan="3" className="py-6 text-gray-400">
-            No sentence evaluations available.
-          </td>
-        </tr>
-      ) : (
-        sentenceData.map((item, index) => (
-          <tr
-            key={index}
-            className="border-b border-white/10 hover:bg-white/5 transition"
-          >
+            {/* ✅ Show English sentence ONLY once */}
+            {j === 0 && (
+              <td
+                rowSpan={item.translations.length}
+                className="py-4 align-top pr-6 font-medium text-white"
+              >
+                {item.sentence}
+              </td>
+            )}
 
-            <td className="py-4">{item.sentenceId}</td>
+            {/* Translation */}
+            <td className="py-4 text-gray-300 pr-6">
+              {t.translationText}
+            </td>
 
-            <td className="py-4">{item.translator}</td>
+            {/* Translator */}
+            <td className="py-4 text-center px-4">
+              {t.translator}
+            </td>
 
-            <td className="py-4 text-purple-400 font-semibold">
-              {item.score}
+            {/* Score */}
+            <td className="py-4 text-center px-4 text-purple-400 font-semibold">
+              {t.avgScore}
+            </td>
+
+            {/* Action */}
+            <td className="py-4 text-center px-4">
+              <button
+                onClick={() => navigate(`/translationDetails/${t.translationId}`)}
+                className="px-3 py-1 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm hover:scale-105 transition"
+              >
+                VIEW
+              </button>
             </td>
 
           </tr>
         ))
       )}
-
     </tbody>
 
   </table>

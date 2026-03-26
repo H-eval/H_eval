@@ -17,6 +17,7 @@ import Corell from "./page/corell";
 import Profile from "./page/Profile";
 import BatchAnalysis from "./page/BatchAnalysis";
 import GraphPage from "./page/GraphPage";
+import TranslationDetails from "./page/TranslationDetails";
 function AppRoutes() {
   const [showSplash, setShowSplash] = useState(true);
   const navigate = useNavigate();
@@ -51,13 +52,15 @@ function AppRoutes() {
       {/* Translation and Line Viewer pages */}
       {/* <Route path="/translate/:fileId" element={<TranslatePage />} /> */}
       {/* <Route path="/lineviewer" element={<LineViewer />} /> */}
-      <Route path="/lineviewer" element={<LineViewer />} />
+      <Route path="/translation/:index" element={<LineViewer />} />
 
 
-      <Route path="/evaluate/:sentenceId/:translationId"element={<EvaluationPage />}/>
+      <Route path="/evaluate/:sentenceId/:translationId/:index"element={<EvaluationPage />}/>
 
       <Route path="/analysis/:batchId" element={<GraphPage />} />
       <Route path="/corell/:translationId" element={<Corell />} />
+
+      <Route path="/translationDetails/:translationId" element={<TranslationDetails />} />
 
 
     </Routes>

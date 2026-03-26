@@ -1,20 +1,36 @@
-// const mongoose = require("mongoose");
+ const mongoose = require("mongoose");
 
-// const userSchema = new mongoose.Schema({
-//   name: String,
-//   email: { type: String, required: true, unique: true },
-//   password: { type: String, required: true }
-// });
+const userSchema = new mongoose.Schema(
+  {
+    firstName: String,
+    middleName: String,
+    lastName: String,
 
-// module.exports = mongoose.model("User", userSchema);
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
 
-const mongoose = require("mongoose");
+    phone: String,
+    userId: String,
 
-const userSchema = new mongoose.Schema({
-  name: String,
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  token: { type: String } // store the JWT token here
-});
+    languages: {
+      type: [String],
+      default: []
+    },
+
+    education: String,
+    gender: String,
+    age: Number,
+
+    registrationDate: {
+      type: Date,
+      default: Date.now
+    },
+
+    token: { type: String }
+  },
+  {
+    timestamps: true // optional (you already have registrationDate)
+  }
+);
 
 module.exports = mongoose.model("User", userSchema);

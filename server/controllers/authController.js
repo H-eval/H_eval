@@ -35,12 +35,12 @@
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("../models/user");
+const User = require("../models/User");
 
 // Register
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { firstName, middleName, lastName, email, password, languages } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -54,9 +54,12 @@ const register = async (req, res) => {
 
     // Create user
     const newUser = new User({
-      name,
+      firstName,
+      middleName,
+      lastName,
       email,
       password: hashedPassword,
+      languages: languages || []
     });
 
     await newUser.save();

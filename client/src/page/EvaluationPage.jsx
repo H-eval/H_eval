@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
 
 const EvaluationPage = () => {
-  const { sentenceId, translationId} = useParams();
+  const { sentenceId, translationId ,index} = useParams();
   const navigate = useNavigate();
 
+  const location = useLocation();
+  const translations = location.state?.translations || [];
+  const sentence = location.state?.sentence || "";
+  const currentTranslation = location.state?.currentTranslation || {};
+    // 🔥 STEP 3: Find current translation index
+  const currentTIndex = translations.findIndex(
+    (t) => (t.T_ID || t._id) === translationId
+  );
 
+  // 🔥 Check if next translation exists
+  const hasNext = currentTIndex < translations.length - 1;
   const [criteria, setCriteria] = useState([]);
   const [ratings, setRatings] = useState({});
   const [comments, setComments] = useState({});
@@ -20,6 +31,14 @@ const EvaluationPage = () => {
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const token = localStorage.getItem("token");
+  // 🔥 FIX: Reset state when translation changes
+    useEffect(() => {
+      setSubmitted(false);
+      setRatings({});
+      setComments({});
+      setFocusedCriterion(null);
+      setError(null);
+    }, [translationId]);
 
 
   const scores = [
@@ -84,6 +103,35 @@ const EvaluationPage = () => {
     }
   }, [ratings, liveAverage]);
 
+  const handleNewEvaluation = () => {
+      setSubmitted(false);
+      setRatings({});
+      setComments({});
+      setFocusedCriterion(null);
+      setError(null);
+    };
+
+    const handleBackToViewer = () => {
+      navigate(`/translation/${index}`);
+    };
+
+     // 🔥 STEP 4: Next translation (same sentence)
+      const handleNextTranslation = () => {
+        if (!hasNext) return;
+
+        const nextT = translations[currentTIndex + 1];
+
+        navigate(
+          `/evaluate/${sentenceId}/${nextT.T_ID || nextT._id}/${index}`,
+          {
+            state: { 
+              translations,
+              sentence: location.state?.sentence,
+              currentTranslation: nextT
+            }
+          }
+        );
+      };
   const handleRating = (criterionId, score) => {
     setAnimatingButton(`${criterionId}-${score}`);
     setRatings({ ...ratings, [criterionId]: score });
@@ -131,11 +179,6 @@ const EvaluationPage = () => {
     console.log('✅ Evaluation submitted successfully:', data);
     setSubmitted(true);
 
-      // ⬇️ navigate to correlation page after short delay
-        setTimeout(() => {
-          navigate(`/corell/${translationId}`);
-        }, 800)
-
     setTimeout(() => {
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }, 100);
@@ -152,17 +195,18 @@ const EvaluationPage = () => {
 
   const handleBack = () => {
     if (submitted) {
-      // If submitted, reset form for new evaluation
+      // Reset form for new evaluation
       setSubmitted(false);
       setRatings({});
       setComments({});
       setFocusedCriterion(null);
       setError(null);
     } else {
-      // If not submitted, navigate back to previous page
-      navigate(-1);
+       navigate(`/translation/${index}`);
     }
   };
+
+  
 
   const ratedCount = Object.keys(ratings).length;
   const progressPercentage = (ratedCount / criteria.length) * 100;
@@ -253,6 +297,27 @@ const EvaluationPage = () => {
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-8 pb-20">
+
+        {/* 🔥 Sentence + Translation Info */}
+        <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 mb-8">
+
+          <p className="text-gray-400 text-sm mb-1">English Sentence</p>
+          <p className="text-white mb-4 font-medium">
+            {sentence}
+          </p>
+
+          <p className="text-gray-400 text-sm mb-1">Translation</p>
+          <p className="text-blue-300 mb-4 font-medium">
+            {currentTranslation?.translatedText || currentTranslation?.Indian_Translation}
+          </p>
+
+          <p className="text-gray-400 text-sm mb-1">Translator</p>
+          <p className="text-green-400 font-medium">
+            {currentTranslation?.translator || currentTranslation?.T_ID}
+          </p>
+
+        </div>
+
         {/* Error Message */}
         {error && (
           <div className="mb-6 bg-red-900 border border-red-700 rounded-lg p-4 flex items-start gap-3">
@@ -347,56 +412,55 @@ const EvaluationPage = () => {
           </div>
         )}
 
-        {submitted && (
-          <div className="animate-fade-in-slow">
-            <div className="bg-gray-800 rounded-xl border border-gray-700 p-8 shadow-2xl">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-14 h-14 rounded-full bg-green-600 flex items-center justify-center animate-scale-in">
-                  <CheckCircle className="w-8 h-8 text-white" />
-                </div>
-                <h2 className="text-3xl font-bold">Review Submitted Successfully!</h2>
-              </div>
+         {submitted && (
+             <div
+                  className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
+                  onClick={() => setSubmitted(false)}
+                >
 
-              <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 mb-8 border border-gray-700 shadow-inner">
-                <div className="flex items-center justify-center gap-8">
-                  <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center shadow-2xl shadow-blue-500/30">
-                    <div className="w-28 h-28 rounded-full bg-gray-900 flex items-center justify-center">
-                      <span className="text-4xl font-bold text-blue-400">{liveAverage.toFixed(2)}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-200 mb-2">Final Average Score</h3>
-                    <p className="text-gray-400">Based on {ratedCount} rated criteria</p>
-                  </div>
-                </div>
-              </div>
+             <div
+                className="bg-[#0f172a] border border-gray-700 rounded-2xl p-10 w-[400px] text-center shadow-2xl animate-scale-in"
+                onClick={(e) => e.stopPropagation()}
+              >
 
-              <div className="space-y-3 mb-8">
-                {criteria.map((criterion) => (
-                  ratings[criterion._id] !== undefined && (
-                    <div key={criterion._id} className="bg-gray-900 rounded-lg p-4 border border-gray-700 flex items-center justify-between hover:bg-gray-850 transition-colors">
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-gray-200 text-sm mb-1">{criterion.CId}: {criterion.CName}</h4>
-                        {comments[criterion._id] && (
-                          <p className="text-xs text-gray-500 mt-2 italic">{comments[criterion._id]}</p>
-                        )}
-                      </div>
-                      <div className={`ml-4 px-4 py-2 rounded-full ${getScoreColor(ratings[criterion._id])} text-white font-bold text-sm shadow-md`}>
-                        {ratings[criterion._id]}
-                      </div>
-                    </div>
-                  )
-                ))}
-              </div>
+              {/* Title */}
+              <div className="text-4xl mb-4 animate-bounce">✅</div>
 
-              <div className="flex gap-4">
-                <button onClick={handleBack} className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-semibold transition-all border border-gray-600 hover:scale-105">
-                  Start New Evaluation
+                <h2 className="text-2xl font-semibold text-green-400 mb-6">
+                  Evaluation Submitted Successfully
+                </h2>
+
+              {/* Buttons */}
+              <div className="flex flex-col gap-4">
+
+                {/* New Evaluation */}
+                <button
+                  onClick={handleNewEvaluation}
+                  className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-500 rounded-lg font-medium hover:scale-105 transition"
+                >
+                  New Evaluation
                 </button>
-                <button onClick={() => navigate(-1)} className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold transition-all hover:scale-105">
-                  Back to Translations
+
+                {/* Back */}
+                <button
+                  onClick={handleBackToViewer}
+                  className="w-full py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium transition"
+                >
+                  Back to Viewer
                 </button>
+
+                {/* Next Translation */}
+                {hasNext && (
+                  <button
+                    onClick={handleNextTranslation}
+                    className="w-full py-3 bg-green-600 hover:bg-green-500 rounded-lg font-medium transition"
+                  >
+                    Next Translation
+                  </button>
+                )}
+
               </div>
+
             </div>
           </div>
         )}

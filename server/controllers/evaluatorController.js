@@ -4,29 +4,42 @@ exports.getEvaluatorStats = async (req, res) => {
   try {
     const userId = req.userId;
 
-    // total evaluations done by this user
-    const totalEvaluations = await Rank.countDocuments({ userId });
-
-    // get all ranks for average score
     const ranks = await Rank.find({ userId });
 
     let totalScore = 0;
     let scoreCount = 0;
+    let bestScore = 0;
 
     ranks.forEach(rank => {
-      if (rank.Criteria && rank.Criteria.length > 0) {
-        rank.Criteria.forEach(c => {
-          totalScore += c.score || 0;
-          scoreCount++;
+      if (rank.Criterions && rank.Criterions.length > 0) {
+
+        let sum = 0;
+        let count = 0;
+
+        rank.Criterions.forEach(c => {
+          if (c.score !== "NA") {
+            const val = Number(c.score);
+            sum += val;
+            totalScore += val;
+            count++;
+            scoreCount++;
+          }
         });
+
+        const avg = count ? sum / count : 0;
+
+        if (avg > bestScore) {
+          bestScore = avg;
+        }
       }
     });
 
     const avgScore = scoreCount ? (totalScore / scoreCount).toFixed(2) : 0;
 
     res.json({
-      totalEvaluations,
-      avgScore
+      totalEvaluations: ranks.length,
+      avgScore,
+      bestScore: bestScore.toFixed(2)
     });
 
   } catch (error) {
@@ -58,18 +71,39 @@ $match: { userId: new mongoose.Types.ObjectId(userId) }
       { $unwind: "$translation" },
       {
         $group: {
-  _id: "$translation.batchId",
-  totalEvaluations: { $sum: 1 },
-  lastEvaluation: { $max: "$createdAt" }
-}
+          _id: "$translation.batchId",
+
+          totalEvaluations: { $sum: 1 },
+
+          lastEvaluation: { $max: "$createdAt" },
+
+          avgScore: {
+            $avg: {
+              $avg: {
+                $map: {
+                  input: "$Criterions",
+                  as: "c",
+                  in: {
+                    $cond: [
+                      { $ne: ["$$c.score", "NA"] },
+                      { $toDouble: "$$c.score" },
+                      null
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       {
-       $project: {
-  _id: 0,
-  batchId: "$_id",
-  totalEvaluations: 1,
-  lastEvaluation: 1
-}
+        $project: {
+          _id: 0,
+          batchId: "$_id",
+          totalEvaluations: 1,
+          lastEvaluation: 1,
+          avgScore: { $round: ["$avgScore", 2] }
+        }
       }
     ]);
 
@@ -81,6 +115,7 @@ $match: { userId: new mongoose.Types.ObjectId(userId) }
   }
 };
 const Translation = require("../models/Translation");
+const Sentence = require("../models/Sentence");
 
 exports.getBatchStats = async (req, res) => {
 
@@ -90,7 +125,7 @@ exports.getBatchStats = async (req, res) => {
     const userId = req.userId;
 
     // total sentences in this batch
-    const totalSentences = await Translation.countDocuments({ batchId });
+    const totalSentences = await Sentence.countDocuments({ batchId });
 
     // get translations in this batch
     const translations = await Translation.find({ batchId }).select("_id");
@@ -146,55 +181,184 @@ exports.getBatchStats = async (req, res) => {
 };
 exports.getSentenceEvaluations = async (req, res) => {
   try {
-
     const { batchId } = req.params;
+    const userId = req.userId;
+
+    const results = await Rank.aggregate([
+      {
+        $match: { userId: new mongoose.Types.ObjectId(userId) }
+      },
+
+      // Join Translation
+      {
+        $lookup: {
+          from: "translations",
+          localField: "TID",
+          foreignField: "_id",
+          as: "translation"
+        }
+      },
+      { $unwind: "$translation" },
+
+      // Join Translator
+      {
+        $lookup: {
+          from: "translators",
+          localField: "translation.T_ID",
+          foreignField: "T_ID",
+          as: "translatorInfo"
+        }
+      },
+      { $unwind: { path: "$translatorInfo", preserveNullAndEmptyArrays: true } },
+
+      {
+        $match: {
+          "translation.batchId": batchId
+        }
+      },
+
+      // Join Sentence
+      {
+        $lookup: {
+          from: "sentences",
+          localField: "translation.S_ID",
+          foreignField: "S_ID",
+          as: "sentence"
+        }
+      },
+      { $unwind: "$sentence" },
+
+      // 🔥 Join AutoScore
+      {
+        $lookup: {
+          from: "autoscores",
+          localField: "translation._id",
+          foreignField: "TID",
+          as: "auto"
+        }
+      },
+      { $unwind: { path: "$auto", preserveNullAndEmptyArrays: true } },
+
+      {
+        $group: {
+          _id: "$translation._id",
+
+          sentence: { $first: "$sentence.SourceSentence" },
+          translationText: { $first: "$translation.Indian_Translation" },
+          translator: { $first: "$translatorInfo.TName" },
+          translationId: { $first: "$translation._id" },
+
+          avgScore: {
+            $first: {
+              $avg: {
+                $map: {
+                  input: "$Criterions",
+                  as: "c",
+                  in: {
+                    $cond: [
+                      { $ne: ["$$c.score", "NA"] },
+                      { $toDouble: "$$c.score" },
+                      null
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+
+      {
+        $project: {
+          sentence: "$sentence",
+          translationText: "$translationText",
+          translator: { $ifNull: ["$translator", "Unknown"] },
+          avgScore: 1,
+          translationId: "$translationId"
+        }
+      }
+    ]);
+
+    // Group by sentence
+    const grouped = {};
+    results.forEach(item => {
+      if (!grouped[item.sentence]) {
+        grouped[item.sentence] = [];
+      }
+      grouped[item.sentence].push({
+        translationText: item.translationText,
+        translator: item.translator,
+        avgScore: item.avgScore ? item.avgScore.toFixed(2) : "0.00",
+        translationId: item.translationId
+      });
+    });
+
+    const finalResult = Object.keys(grouped).map(sentence => ({
+      sentence,
+      translations: grouped[sentence]
+    }));
+
+    res.json(finalResult);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+
+exports.getTranslationDetails = async (req, res) => {
+  try {
+    const { translationId } = req.params;
     const userId = req.userId;
 
     const Rank = require("../models/Rank");
     const Translation = require("../models/Translation");
+    const Sentence = require("../models/Sentence");
     const Translator = require("../models/Translator");
 
-    const ranks = await Rank.find({ userId });
+    const rank = await Rank.findOne({
+      TID: translationId,
+      userId
+    }).lean();
 
-    const results = [];
-
-    for (let rank of ranks) {
-
-      const translation = await Translation.findOne({
-        T_ID: rank.TID,
-        batchId: batchId
-      });
-
-      if (!translation) continue;
-
-      const translator = await Translator.findOne({
-        T_ID: translation.T_ID
-      });
-
-      let totalScore = 0;
-      let count = 0;
-
-      if (rank.Criteria && rank.Criteria.length > 0) {
-        rank.Criteria.forEach(c => {
-          totalScore += c.score ?? c ?? 0;
-          count++;
-        });
-      }
-
-      const avgScore = count ? (totalScore / count).toFixed(2) : 0;
-
-      results.push({
-        sentenceId: translation.S_ID,
-        translator: translator ? translator.TName : "Unknown",
-        score: avgScore
-      });
-
+    if (!rank) {
+      return res.status(404).json({ msg: "No evaluation found" });
     }
 
-    res.json(results);
+    const translation = await Translation.findById(translationId).lean();
 
-  } catch (error) {
-    console.error(error);
+    const sentence = await Sentence.findOne({
+      S_ID: translation.S_ID,
+      batchId: translation.batchId
+    }).lean();
+
+    const translator = await Translator.findOne({
+      T_ID: translation.T_ID
+    }).lean();
+
+    // 🔹 avg score
+    let total = 0;
+    let count = 0;
+
+    rank.Criterions.forEach(c => {
+      if (c.score !== "NA") {
+        total += Number(c.score);
+        count++;
+      }
+    });
+
+    const avgScore = count ? (total / count).toFixed(2) : 0;
+
+    res.json({
+      sentence: sentence?.SourceSentence,
+      translation: translation.Indian_Translation,
+      translator: translator?.TName,
+      avgScore,
+      criteria: rank.Criterions
+    });
+
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ msg: "Server error" });
   }
 };
