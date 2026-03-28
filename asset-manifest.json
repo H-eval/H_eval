@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/H_eval/static/css/main.ed65e822.css",
+    "main.js": "/H_eval/static/js/main.d03e30e1.js",
+    "index.html": "/H_eval/index.html",
+    "main.ed65e822.css.map": "/H_eval/static/css/main.ed65e822.css.map",
+    "main.d03e30e1.js.map": "/H_eval/static/js/main.d03e30e1.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ed65e822.css",
+    "static/js/main.d03e30e1.js"
+  ]
+}
