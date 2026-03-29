@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api", require("./routes/uploadRoutes")); // ✅ ONLY THIS
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api", require("./routes/translationRoutes"));
-app.use("/api/nlp", require("./routes/nlproutes"));
+app.use("/api/nlp", require("./routes/nlpRoutes"));
 app.use('/api/ranks', rankRoutes);
 app.use("/api", corellRoutes);
 app.use("/api/auto-eval", autoEvaluationRoutes);
