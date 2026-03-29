@@ -9,7 +9,7 @@ router.post("/process", async (req, res) => {
     const { text } = req.body;
 
     // Forward request to Flask NLP service
-    const response = await axios.post("http://127.0.0.1:5001/process", { text });
+    const response = await axios.post(" https://h-eval-nlp.onrender.com/process", { text });
 
     // Send NLP response back to frontend
     res.json(response.data);

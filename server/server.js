@@ -19,7 +19,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 // middleware FIRST
 app.use(cors({
-  origin: ["http://localhost:3000", "http://localhost:3001"],
+  origin: ["http://localhost:3000", "http://localhost:3001" ,"https://h-eval.vercel.app"],
   credentials: true
 }));
 app.use(express.json());
