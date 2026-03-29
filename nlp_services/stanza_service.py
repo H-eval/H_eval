@@ -49,11 +49,14 @@ import stanza
 app = Flask(__name__)
 CORS(app)
 
-# ✅ Download model (only first time)
-stanza.download("en")
+
 
 # Load pipeline
-nlp = stanza.Pipeline("en", processors="tokenize,pos,lemma,ner")
+nlp = stanza.Pipeline(
+    "en",
+    processors="tokenize,pos,lemma,ner",
+    dir="./stanza_resources"
+)
 
 @app.route("/")
 def home():
