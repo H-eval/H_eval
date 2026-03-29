@@ -13,7 +13,7 @@ const Profile = () => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
 
-      const res = await fetch("http://localhost:5000/api/auth/me", {
+      const res = await fetch(" https://h-eval-backend.onrender.com/api/auth/me", {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -32,7 +32,7 @@ const Profile = () => {
       try {
         const token = localStorage.getItem("token");
 
-        const res = await fetch("http://localhost:5000/api/evaluator/stats", {
+        const res = await fetch(" https://h-eval-backend.onrender.com/api/evaluator/stats", {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -53,7 +53,7 @@ const Profile = () => {
       try {
         const token = localStorage.getItem("token");
 
-        const res = await fetch("http://localhost:5000/api/evaluator/history", {
+        const res = await fetch(" https://h-eval-backend.onrender.com/api/evaluator/history", {
           headers: {
             Authorization: `Bearer ${token}`
           }

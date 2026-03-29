@@ -64,7 +64,7 @@ const LineViewer = () => {
     const fetchData = async () => {
       try {
         const res = await fetch(
-          "http://localhost:5000/api/translations/sequences"
+          "  https://h-eval-backend.onrender.com/api/translations/sequences"
         );
         const data = await res.json();
         setLines(data || []);

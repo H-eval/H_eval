@@ -87,7 +87,7 @@ const GraphPage = () => {
   const [selectedPoint, setSelectedPoint] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/history/${batchId}`)
+    fetch(`  https://h-eval-backend.onrender.com/api/history/${batchId}`)
       .then(res => res.json())
       .then(data => {
          console.log(data);

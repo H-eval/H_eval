@@ -30,7 +30,7 @@ const fetchCorrelationData = async () => {
     setLoading(true);
 
     const response = await fetch(
-      `http://localhost:5000/api/correlation/${tid}`
+      ` https://h-eval-backend.onrender.com/api/correlation/${tid}`
     );
 
     if (!response.ok) {

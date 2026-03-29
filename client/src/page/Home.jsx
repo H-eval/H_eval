@@ -21,7 +21,7 @@ export default function Home({onGoToEvaluation}) {
   
   // 🔗 Test Backend Connection
   useEffect(() => {
-    fetch("http://localhost:5000")
+    fetch(" https://h-eval-backend.onrender.com")
       .then(res => res.text())
       .then(data => console.log("✅ Backend Connected:", data))
       .catch(err => console.log("❌ Backend Error:", err));
@@ -128,7 +128,7 @@ async function handleUploadClick() {
   setUploading(true);
 
   try {
-    const res = await fetch("http://localhost:5000/api/upload", {
+    const res = await fetch(" https://h-eval-backend.onrender.com/api/upload", {
       method: "POST",
       // headers: {
       //   Authorization: `Bearer ${localStorage.getItem("token")}`,

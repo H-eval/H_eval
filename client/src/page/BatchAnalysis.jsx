@@ -20,7 +20,7 @@ useEffect(() => {
 
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`http://localhost:5000/api/evaluator/batchStats/${batchId}`, {
+      const res = await fetch(`https://your-backend.onrender.com/api/evaluator/batchStats/${batchId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -48,7 +48,7 @@ useEffect(() => {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `http://localhost:5000/api/evaluator/sentenceEvaluations/${batchId}`,
+        `https://your-backend.onrender.com/api/evaluator/sentenceEvaluations/${batchId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`

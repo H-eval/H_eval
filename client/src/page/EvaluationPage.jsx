@@ -55,7 +55,7 @@ const EvaluationPage = () => {
     const fetchCriteria = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:5000/api/ranks/criteria');
+        const response = await fetch(' https://h-eval-backend.onrender.com/api/ranks/criteria');
         
         if (!response.ok) {
           throw new Error('Failed to fetch criteria');
@@ -163,7 +163,7 @@ const EvaluationPage = () => {
 
     console.log('📤 Submitting evaluation:', payload);
 
-     const response = await fetch("http://localhost:5000/api/ranks/rank", {
+     const response = await fetch(" https://h-eval-backend.onrender.com/api/ranks/rank", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -13,7 +13,7 @@ const TranslationDetails = () => {
         const token = localStorage.getItem("token");
 
         const res = await fetch(
-          `http://localhost:5000/api/evaluator/translationDetails/${translationId}`,
+          ` https://h-eval-backend.onrender.com/api/evaluator/translationDetails/${translationId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`
