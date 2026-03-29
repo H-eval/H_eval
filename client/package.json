@@ -2,7 +2,7 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://h-eval.github.io/H_eval/",
+  "homepage": ".",
 
   "dependencies": {
     "@gsap/react": "^2.1.2",
