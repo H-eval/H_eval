@@ -16,6 +16,7 @@ require("dotenv").config();
 
 const app = express();
 
+
 // middleware FIRST
 app.use(cors({
   origin: ["http://localhost:3000", "http://localhost:3001"],
@@ -40,13 +41,12 @@ app.get("/", (req, res) => {
 });
 
 // DB + server
-mongoose.connect(process.env.MONGO_URI)
+ mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log("✅ MongoDB connected");
-    app.listen(5000, () =>
-      console.log("🚀 Server running on http://localhost:5000")
+    app.listen(PORT, () =>
+      console.log(`🚀 Server running on port ${PORT}`)
     );
   })
   .catch(console.error);
-
 
